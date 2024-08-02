@@ -1,10 +1,11 @@
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
+import 'package:eventique_company_app/screens/wallet_screen.dart';
 import 'package:eventique_company_app/widgets/main_drawer.dart';
 import '/color.dart';
 import '/screens/chat_user_list_screen.dart';
 import '/screens/orders_screen.dart';
-import '/screens/statistics.dart';
+import '/screens/statistics_screen.dart';
 import '/screens/vendors_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,7 +21,7 @@ class NavigationBarPage extends StatefulWidget {
 class _NavigationBarPageState extends State<NavigationBarPage> {
   List Screen = [
     VendorsScreen(),
-    Statistics(),
+    StatisticsScreen(),
     OrdersScreen(),
     ChatUsersListScreen(),
   ];
@@ -58,8 +59,12 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                 color: primary,
               ),
               onPressed: () {
-                // Navigator.push(context,
-                //     MaterialPageRoute(builder: ((context) => WalletScreen())));
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return WalletScreen();
+                  },
+                );
               },
               padding: const EdgeInsets.only(bottom: 2),
             ),

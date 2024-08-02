@@ -28,7 +28,8 @@ class _EmailRestScreenState extends State<EmailRestScreen> {
       });
 
       print('enter new email function');
-      //await Provider.of<AuthVendor>(context, listen: false).emailRest(userEmail);
+      await Provider.of<AuthVendor>(context, listen: false)
+          .emailRest(userEmail);
       setState(() {
         _isLoading = false;
       });

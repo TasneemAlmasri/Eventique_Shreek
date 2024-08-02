@@ -1,3 +1,5 @@
+import 'package:eventique_company_app/providers/statics_provider.dart';
+
 import '/providers/orders.dart';
 import '/providers/reviews.dart';
 import '/providers/services_list.dart';
@@ -76,13 +78,20 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(
           value: Reviews(),
         ),
+        ChangeNotifierProvider.value(
+          value: StatisticsProvider(
+            token,
+            id,
+          ),
+        )
       ],
       child: Consumer<AuthVendor>(
         builder: (ctx, auth, _) => MaterialApp(
           title: 'EvenTique shreek',
           themeMode: themeProvider.getThemeMode(),
-          home: auth.isAuthenticated ? NavigationBarPage() : LoginScreen(),
-          //home: NavigationBarPage(),
+          //home: auth.isAuthenticated ? NavigationBarPage() : LoginScreen(),
+          home: NavigationBarPage(),
+          // home: SignUpScreen4(),
           debugShowCheckedModeBanner: false,
           routes: {
             SignUpScreen1.routeName: (ctx) => SignUpScreen1(),

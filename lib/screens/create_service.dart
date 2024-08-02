@@ -66,7 +66,7 @@ class _CreateServiceState extends State<CreateService> {
       });
       List<String> imagesUrl = await _uploadImages(imagesPicked);
       print(imagesUrl);
-      await Provider.of<ServiceProvider>(context).addNewService(
+      await Provider.of<ServiceProvider>(context, listen: false).addNewService(
           imagesUrl,
           serviceName,
           servicePrice,

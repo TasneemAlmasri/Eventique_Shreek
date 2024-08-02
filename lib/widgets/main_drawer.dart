@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '/color.dart';
 import 'package:eventique_company_app/providers/auth_vendor.dart';
-import '../screens/user_profile_screen.dart';
+import '../screens/vendor_profile_screen.dart';
 import '/screens/settings_screen.dart';
 
 class MainDrawer extends StatelessWidget {
@@ -95,7 +95,7 @@ class MainDrawer extends StatelessWidget {
             'Profile',
             () {
               Navigator.of(context).pushNamed(
-                UserProfileScreen.routeName,
+                VendorProfileScreen.routeName,
               );
             },
           ),

@@ -212,7 +212,7 @@ class AuthVendor with ChangeNotifier {
       print('userImage:${_userData['image']}');
       _userData['email'] = responseData['data']['email'];
       print('email:${_userData['email']}');
-      _userData['phone'] = responseData['data']['phone_number'];
+      _userData['phone'] = responseData['data']['phone_number'].toString();
       print(_userData['phone']);
       _userData['description'] = responseData['data']['description'];
       print(_userData['description']);
@@ -346,14 +346,17 @@ class AuthVendor with ChangeNotifier {
   }
 
   Future<void> RestVerificationCode(String email, String code) async {
-    final url = Uri.parse('$host/api/verAuthOTP');
+    final url = Uri.parse('$host/api/companies/verEmail');
     print(url);
+    print(email);
     print('$code+++++++++++++++++');
+    print(token);
     try {
       final response = await http.post(
         url,
         headers: {
           'Accept': 'application/json',
+          'Authorization': 'Bearer $_loginToken',
         },
         body: {
           'email': email,
@@ -375,46 +378,49 @@ class AuthVendor with ChangeNotifier {
   }
 
 //update company logo image
-  Future<void> updateLogoImage(String newImageUrl) async {
-    final url = Uri.parse('$host/api/resetImage');
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $_loginToken',
-        },
-        body: {
-          'image': newImageUrl,
-        },
-      );
+  // Future<void> updateLogoImage(String newImageUrl) async {
+  //   final url = Uri.parse('$host/api/resetImage');
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {
+  //         'Accept': 'application/json',
+  //         'Authorization': 'Bearer $_loginToken',
+  //       },
+  //       body: {
+  //         'image': newImageUrl,
+  //       },
+  //     );
 
-      final responseData = json.decode(response.body);
+  //     final responseData = json.decode(response.body);
 
-      if (responseData['Status'] == 'Failed') {
-        throw Exception(responseData['Error']);
-      }
+  //     if (responseData['Status'] == 'Failed') {
+  //       throw Exception(responseData['Error']);
+  //     }
 
-      // Update local user data
-      _userData['image'] = newImageUrl;
-      print(_userData['image']);
-      await StorageManager.updateUserData(userImage: _userData['image']);
-      notifyListeners();
-    } catch (error) {
-      print(error.toString());
-      throw error; // Re-throw the error for handling in UI
-    }
-  }
+  //     // Update local user data
+  //     _userData['image'] = newImageUrl;
+  //     print(_userData['image']);
+  //     await StorageManager.updateUserData(userImage: _userData['image']);
+  //     notifyListeners();
+  //   } catch (error) {
+  //     print(error.toString());
+  //     throw error; // Re-throw the error for handling in UI
+  //   }
+  // }
 
 //update company name,or location or .....
   Future<void> updateInfo(String dataName, String newData) async {
-    final url = Uri.parse('$host/api/resetName');
+    final url = Uri.parse('$host/api/companies/update');
+    print(dataName);
+    print(newData);
     try {
-      final response = await http.post(
+      final response = await http.put(
         url,
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $_loginToken',
+          'locale': 'en'
         },
         body: {
           dataName: newData,
@@ -428,9 +434,9 @@ class AuthVendor with ChangeNotifier {
       }
 
       // Update local user data
-      _userData['companyName'] = newData;
-      print(_userData['companyName']);
-      await StorageManager.updateUserData(userName: _userData['companyName']);
+      // _userData['companyName'] = newData;
+      // print(_userData['companyName']);
+      //await StorageManager.updateUserData(userName: _userData['companyName']);
       notifyListeners();
     } catch (error) {
       print(error.toString());
@@ -440,7 +446,7 @@ class AuthVendor with ChangeNotifier {
 
   Future<void> passwordRest(
       String oldPassword, String password, String confirmPassword) async {
-    final url = Uri.parse('$host/api/changePass');
+    final url = Uri.parse('$host/api/companies/changePass');
     print(url);
     try {
       final response = await http.post(
@@ -470,8 +476,9 @@ class AuthVendor with ChangeNotifier {
   }
 
   Future<void> emailRest(String newEmail) async {
-    final url = Uri.parse('$host/api/changeEmailOTP');
+    final url = Uri.parse('$host/api/companies/changeEmailOTP');
     print(url);
+    print(token);
     try {
       final response = await http.post(
         url,
@@ -505,14 +512,11 @@ class AuthVendor with ChangeNotifier {
     final url = Uri.parse('$host/api/companies/logout');
     print(url);
     try {
-      final response = await http.post(
+      final response = await http.get(
         url,
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $_loginToken',
-        },
-        body: {
-          'email': _userData['email'],
         },
       );
 
