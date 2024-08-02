@@ -1,5 +1,4 @@
-import 'package:eventique_company_app/providers/statics_provider.dart';
-
+import '/providers/statics_provider.dart';
 import '/providers/orders.dart';
 import '/providers/reviews.dart';
 import '/providers/services_list.dart';
@@ -27,10 +26,11 @@ import '/screens/sign_up_screens/sign_up_screen2.dart';
 import '/screens/sign_up_screens/sign_up_screen3.dart';
 import '/screens/sign_up_screens/sign_up_screen4.dart';
 
-String host = 'http://192.168.1.106:8000';
+String host = 'http://192.168.1.107:8000';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   final authProvider = AuthVendor();
   await authProvider.loadUserData();
 
@@ -52,6 +52,7 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final token = authProvider.token;
     final id = authProvider.userId;
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
@@ -89,9 +90,8 @@ class MyApp extends StatelessWidget {
         builder: (ctx, auth, _) => MaterialApp(
           title: 'EvenTique shreek',
           themeMode: themeProvider.getThemeMode(),
-          //home: auth.isAuthenticated ? NavigationBarPage() : LoginScreen(),
-          home: NavigationBarPage(),
-          // home: SignUpScreen4(),
+          home: auth.isAuthenticated ? NavigationBarPage() : LoginScreen(),
+          //home: NavigationBarPage(),
           debugShowCheckedModeBanner: false,
           routes: {
             SignUpScreen1.routeName: (ctx) => SignUpScreen1(),

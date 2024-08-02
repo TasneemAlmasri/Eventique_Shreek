@@ -11,18 +11,18 @@ class AuthVendor with ChangeNotifier {
   String _firebaseToken = '';
   int _userId = 0;
   Map<String, dynamic> _userData = {
-    'firstName': 'tasneem',
-    'lastName': 'masri',
-    'email': 'beecake34@gmail.com',
+    'firstName': '',
+    'lastName': '',
+    'email': '',
     'password': '',
     'confirmPassword': '',
-    'phone': '0957515671',
-    'companyName': 'BEE Cake',
-    'registrationNumber': '1234567',
-    'location': 'Abbasin',
-    'city': 'syris',
-    'country': 'damascus',
-    'description': 'an amazing cake you find here اذا دقت علقت',
+    'phone': '',
+    'companyName': '',
+    'registrationNumber': '',
+    'location': '',
+    'city': '',
+    'country': '',
+    'description': '',
     'acceptPrivacy': true,
     'image': '',
     'coverImage': '',
@@ -38,6 +38,13 @@ class AuthVendor with ChangeNotifier {
     final userData = await StorageManager.loadUserData();
     if (userData != null && userData['loginToken'] != null) {
       _loginToken = userData['loginToken'];
+      print('Loaded login token:$_loginToken');
+      // _userId = userData['userId'];
+      // print('Loaded vendorId:$_userId');
+      // _firebaseToken = userData['firebaseToken'];
+      // _userData['companyName'] = userData['userName'];
+      // _userData['email'] = userData['userEmail'];
+      // _userData['image'] = userData['userImage'];
       _isAuthenticated = true;
     } else {
       _isAuthenticated = false;
@@ -149,14 +156,21 @@ class AuthVendor with ChangeNotifier {
       print('firebaseToken:$_firebaseToken');
       _userId = responseData['data']['id'];
       print('userId:$_userId');
-      _userData['companyName'] = responseData['data']['name'];
+      _userData['companyName'] = responseData['data']['company_name'];
       print('userName:${_userData['companyName']}');
       _userData['email'] = responseData['data']['email'];
       print('userEmail:${_userData['email']}');
       _userData['image'] = responseData['data']['images'][0]['url'];
       print('userImage:${_userData['image']}');
-      await StorageManager.updateUserData(firebaseToken: _firebaseToken);
-      await authenticateUserWithCustomToken(_firebaseToken);
+      await StorageManager.saveUserData(
+        userId,
+        _loginToken,
+        _firebaseToken,
+        _userData['companyName'],
+        _userData['email'],
+        _userData['image'],
+      );
+      // await authenticateUserWithCustomToken(_firebaseToken);
       notifyListeners();
     } catch (error) {
       print(error);
@@ -223,8 +237,14 @@ class AuthVendor with ChangeNotifier {
       _userData['country'] = responseData['data']['country'];
       print(_userData['country']);
       await StorageManager.updateUserData(
-          firebaseToken: _firebaseToken, loginToken: _loginToken);
-      await authenticateUserWithCustomToken(_firebaseToken);
+        firebaseToken: _firebaseToken,
+        loginToken: _loginToken,
+        userId: _userId,
+        userName: _userData['companyName'],
+        userEmail: _userData['email'],
+        userImage: _userData['image'],
+      );
+      // await authenticateUserWithCustomToken(_firebaseToken);
       notifyListeners();
     } catch (error) {
       print(error.toString());
@@ -258,7 +278,6 @@ class AuthVendor with ChangeNotifier {
         url,
         headers: {
           'Accept': 'application/json',
-          //'Authorization': 'Bearer $_signUpToken',
         },
         body: {
           'email': email,

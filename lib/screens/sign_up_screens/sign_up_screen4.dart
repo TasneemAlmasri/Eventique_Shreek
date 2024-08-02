@@ -1,4 +1,4 @@
-import 'package:eventique_company_app/screens/navigation_bar_page.dart';
+import '/screens/login_screen.dart';
 
 import '/providers/auth_vendor.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +20,9 @@ class _SignUpScreen4State extends State<SignUpScreen4> {
 
   Future<void> _submitAllForms() async {
     final vendorData = Provider.of<AuthVendor>(context, listen: false).userData;
-    Text('First Name: ${vendorData['firstName']}');
+
+    // Debugging prints
+    print('First Name: ${vendorData['firstName']}');
     print('Last Name: ${vendorData['lastName']}');
     print('Email: ${vendorData['email']}');
     print('Phone: ${vendorData['phone']}');
@@ -34,12 +36,13 @@ class _SignUpScreen4State extends State<SignUpScreen4> {
     print('Services ID: ${vendorData['servicesId'].toString()}');
     print('Event Type ID: ${vendorData['eventTypeId'].toString()}');
     print('Days: ${vendorData['days'].join(', ')}');
-    print('Opening Hours: ${vendorData['openningHours'].forEach((key, value) {
-      print('$key: $value');
-    })}');
-    print('Closing Hours: ${vendorData['closingHours'].forEach((key, value) {
-      print('$key: $value');
-    })}');
+    vendorData['openningHours'].forEach((key, value) {
+      print('Opening Hours - $key: $value');
+    });
+    vendorData['closingHours'].forEach((key, value) {
+      print('Closing Hours - $key: $value');
+    });
+
     try {
       setState(() {
         _isLoading = true;
@@ -48,13 +51,42 @@ class _SignUpScreen4State extends State<SignUpScreen4> {
       setState(() {
         _isLoading = false;
       });
-      Navigator.of(context).popAndPushNamed(NavigationBarPage.routeName);
+
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Registration Successful'),
+          content: Text(
+            'Your company has been registered successfully. '
+            'You will be notified when your registration is accepted by the admin. '
+            'You cannot login until the admin accepts your request.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(ctx).pop(); // Close the dialog
+                Navigator.of(context).popAndPushNamed(
+                    LoginScreen.routeName); // Navigate to login screen
+              },
+            )
+          ],
+        ),
+      );
     } catch (error) {
       print(error);
       setState(() {
         _isLoading = false;
       });
-      //show a dialog may be
+
+      // Show error snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
