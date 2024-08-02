@@ -10,12 +10,12 @@ class VendorsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: beige,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: beige,
+          body: SafeArea(
+            child: SingleChildScrollView(
               child: Column(
                 children: [
                   GestureDetector(
@@ -42,31 +42,29 @@ class VendorsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Positioned(
-              bottom: 46,
-              right: 32,
-              child: FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: ((context) => CreateService())));
-                },
-                child: Icon(
-                  Icons.add,
-                  color: beige,
-                ),
-                backgroundColor: primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                elevation: 4,
-                tooltip: 'Add Service',
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        Positioned(
+          bottom: 40,
+          right: 32,
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: ((context) => CreateService())));
+            },
+            child: Icon(
+              Icons.add,
+              color: beige,
+            ),
+            backgroundColor: primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            elevation: 4,
+            tooltip: 'Add Service',
+          ),
+        ),
+      ],
     );
   }
 }

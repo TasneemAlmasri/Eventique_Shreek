@@ -32,12 +32,12 @@ class Orders with ChangeNotifier {
     notifyListeners();
   }
 
-  void acceptService() {
-    // _ordersService.acceptService(token);
+  Future<void> acceptService() async {
+    _ordersService.acceptService(token);
   }
 
-  void rejectService() {
-    // _ordersService.rejectService(token);
+  Future<void> rejectService() async {
+    _ordersService.rejectService(token);
   }
 }
 
@@ -111,7 +111,48 @@ class OrdersService {
       }).toList();
     } else {
       print(response.body);
-      throw Exception('Failed showEventttttttt');
+      throw Exception('Failed');
     }
   }
+
+   void acceptService(String token) async {
+    final String apiUrl = '$host/api/events';
+    print('I am in acceptService ');
+
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {
+        'Accept': 'application/json',
+        'locale': 'ar',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      print('Successfully acceptService');
+     }else {
+      print(response.body);
+      throw Exception('Failed');
+    }
+  }
+
+  void rejectService(String token) async {
+    final String apiUrl = '$host/api/events';
+    print('I am in rejectService ');
+
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {
+        'Accept': 'application/json',
+        'locale': 'ar',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      print('Successfully rejectService');
+     }else {
+      print(response.body);
+      throw Exception('Failed');
+    }
+  }
+
 }

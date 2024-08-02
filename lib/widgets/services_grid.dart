@@ -40,9 +40,8 @@ class ServicesGrid extends StatelessWidget {
                         displayedServices[i].imgsUrl!.isNotEmpty)
                     ? displayedServices[i].imgsUrl![0]
                     : 'ops',
-                name: displayedServices[i].name!,
-                rating: displayedServices[i].rating!,
-                vendorName: displayedServices[i].vendorName!,
+                name: displayedServices[i].name!, 
+                rating: displayedServices[i].rating,
                 serviceId: displayedServices[i].serviceId!,
               ),
               shrinkWrap: true,
