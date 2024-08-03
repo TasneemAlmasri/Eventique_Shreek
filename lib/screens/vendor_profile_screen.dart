@@ -1,16 +1,15 @@
 import 'dart:io';
-import 'package:eventique_company_app/providers/theme_provider.dart';
-import 'package:eventique_company_app/screens/email_rest_screen.dart';
-import 'package:eventique_company_app/screens/password_rest_screen.dart';
-import 'package:eventique_company_app/widgets/pickers/user_image_picker.dart';
+import 'package:provider/provider.dart';
+import '/providers/theme_provider.dart';
+import '/providers/auth_vendor.dart';
+import '/screens/email_rest_screen.dart';
+import '/screens/password_rest_screen.dart';
+import '/widgets/pickers/user_image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import '/color.dart';
-import 'package:eventique_company_app/providers/auth_vendor.dart';
 import '/widgets/vendor_profile/vendor_profile_item.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class VendorProfileScreen extends StatefulWidget {
   static const routeName = '/vendor-profile';
@@ -288,7 +287,9 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                   ),
                   VendorProfileItem(
                     title: 'Location',
-                    userInfo: vendorInfo['location'] ?? 'N/A',
+                    userInfo:
+                        '${vendorInfo['city']},${vendorInfo['country']},${vendorInfo['location']},' ??
+                            'N/A',
                     subtitle: '',
                     iconData: Icons.location_on,
                     isLight: isLight,
@@ -298,7 +299,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                       title: 'Working Hours',
                       userInfo: vendorInfo['days'] != null &&
                               vendorInfo['days'].isNotEmpty
-                          ? vendorInfo['days'][0]
+                          ? vendorInfo['days'][0].toString()
                           : 'N/A',
                       subtitle: 'vendorInfo[opening]',
                       iconData: Icons.timer,

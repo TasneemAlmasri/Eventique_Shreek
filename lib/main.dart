@@ -26,7 +26,7 @@ import '/screens/sign_up_screens/sign_up_screen2.dart';
 import '/screens/sign_up_screens/sign_up_screen3.dart';
 import '/screens/sign_up_screens/sign_up_screen4.dart';
 
-String host = 'http://192.168.1.107:8000';
+String host = 'http://192.168.20.5:8000';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -74,10 +74,10 @@ class MyApp extends StatelessWidget {
           value: Orders(token),
         ),
         ChangeNotifierProvider.value(
-          value: AllServices(),
+          value: AllServices(id, token),
         ),
         ChangeNotifierProvider.value(
-          value: Reviews(),
+          value: Reviews(token),
         ),
         ChangeNotifierProvider.value(
           value: StatisticsProvider(

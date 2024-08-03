@@ -13,10 +13,11 @@ class OneReview extends StatelessWidget {
     required this.imgurl,
     required this.serviceId,
     required this.reviewIndex,
+    required this.personId,
   });
   final double? rating;
   final String personName, theComment, imgurl;
-  final int serviceId, reviewIndex;
+  final int serviceId, reviewIndex,personId;
 
   @override
   Widget build(BuildContext context) {

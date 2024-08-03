@@ -49,6 +49,7 @@ class _WalletScreenState extends State<WalletScreen> {
     bool isLight = themeMode == ThemeMode.light ||
         (sysBrightness == Brightness.light && themeMode != ThemeMode.dark);
     int moneyAmount = Provider.of<StatisticsProvider>(context).walletAmount;
+    print('amount:$moneyAmount');
     return AlertDialog(
       backgroundColor: white,
       surfaceTintColor: white,
@@ -98,7 +99,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     color: white,
                   )
                 : Text(
-                    amount.toString(),
+                    moneyAmount.toString(),
                     style: TextStyle(
                       color: white,
                       fontSize: 24,

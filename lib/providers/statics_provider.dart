@@ -51,7 +51,7 @@ class StatisticsProvider with ChangeNotifier {
   }
 
   Future<void> getWalletAmount() async {
-    final url = Uri.parse('$host/api/userwallets/$id');
+    final url = Uri.parse('$host/api/companies/companyWallet');
     print(url);
     print(token);
     print(id);
@@ -61,7 +61,6 @@ class StatisticsProvider with ChangeNotifier {
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
-          'locale': 'en',
         },
       );
       final responseData = json.decode(response.body);

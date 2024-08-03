@@ -1,14 +1,3 @@
-enum ServiceCategories {
-  venue,
-  catering,
-  flowers,
-  cake,
-  accesories,
-  photography,
-  entertainment,
-  decoration,
-  transportation,
-}
 
 class OneService {
   final int? serviceId;
@@ -17,7 +6,7 @@ class OneService {
   final String? description;
   final bool? isDiscountedPackages;
   final bool? isActivated;
-  final ServiceCategories? category;
+  final int? categoryId;
   final double? rating;
   final List<String>? imgsUrl;
 
@@ -29,7 +18,7 @@ class OneService {
       this.description,
       this.isDiscountedPackages,
       this.isActivated,
-      this.category,
+      this.categoryId,
       this.rating,
       this.imgsUrl});
 }

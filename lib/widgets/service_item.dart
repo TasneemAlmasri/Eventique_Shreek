@@ -7,13 +7,12 @@ class ServiceItem extends StatelessWidget {
     super.key,
     required this.imgurl,
     required this.name,
-    required this.vendorName,
     required this.rating,
     required this.serviceId,
   });
   final String imgurl;
-  final String name, vendorName;
-  final double rating;
+  final String name;
+  final double ?rating;
   final int serviceId;
 
   @override
@@ -83,13 +82,15 @@ class ServiceItem extends StatelessWidget {
                           color: Color(0xffEBC25C),
                           size: 18,
                         ),
+                        rating!=null?
                         Text(
                           rating.toString(),
                           style: TextStyle(
                             color: const Color(0xffEBC25C),
                             fontSize: 14,
                           ),
-                        ),
+                        ):
+                        Container(),
                       ],
                     ),
                   ))
@@ -99,8 +100,9 @@ class ServiceItem extends StatelessWidget {
               style: TextStyle(
                   fontSize: 14,
                   fontFamily: 'IrishGrover',
+                  fontWeight: FontWeight.bold,
                   color: Color(0xff662465)),
-              softWrap: false,
+              softWrap: false, 
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
