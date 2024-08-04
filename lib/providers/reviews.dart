@@ -3,12 +3,16 @@ import 'package:eventique_company_app/main.dart';
 import 'package:eventique_company_app/models/one_review.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 class Reviews with ChangeNotifier {
   final String token;
   Reviews(this.token);
   ReviewsService reviewsService=ReviewsService();
+  PdfService pdfService=PdfService();
 
   final Map<int, List<OneReview>> _reviewsForServiceMap = {};
 
@@ -22,6 +26,12 @@ class Reviews with ChangeNotifier {
    List<OneReview> reviewsForService(int serviceId) {
     return _reviewsForServiceMap[serviceId] ?? [];
   }
+
+  Future<void> downloadPdf(String fileName) async {
+    pdfService.downloadPdf(fileName,token);
+  }
+
+
 }
 
 
@@ -61,4 +71,38 @@ final String apiUrl = '$host/api/reviews';
     }
   }
 
+}
+
+class PdfService{
+  
+Future<void> downloadPdf(String url, String fileName) async {
+  // Request storage permissions
+  if (await Permission.storage.request().isGranted) {
+    try {
+      // Make HTTP GET request
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        // Get the external storage directory to save the PDF file
+        final directory = await getExternalStorageDirectory();
+        final filePath = '${directory!.path}/$fileName';
+
+        // Write the response body to a file
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        print('PDF saved to $filePath');
+
+        // Open the PDF file
+        // openPdf(filePath);
+      } else {
+        print('Failed to download PDF: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error downloading PDF: $e');
+    }
+  } else {
+    print('Storage permission denied');
+  }
+  
+}
 }

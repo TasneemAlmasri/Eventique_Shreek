@@ -1,4 +1,6 @@
 //taghreed
+import 'package:eventique_company_app/providers/reviews.dart';
+
 import '/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,7 @@ class MainDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final vendorInfo = Provider.of<AuthVendor>(context).userData;
+    final reviewsProvider = Provider.of<Reviews>(context);
 
     return Drawer(
       backgroundColor: white,
@@ -102,7 +105,13 @@ class MainDrawer extends StatelessWidget {
           buildListTile(
             Icons.handshake,
             'Contract',
-            () {},
+            () async {
+              const fileName = 'document.pdf';
+              
+              // Call the download function
+             await reviewsProvider.downloadPdf(fileName);
+              // await downloadPdf( fileName);
+            },
           ),
           buildListTile(
             Icons.settings,

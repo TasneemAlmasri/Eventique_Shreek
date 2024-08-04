@@ -8,7 +8,8 @@ import 'package:http/http.dart' as http;
 
 class Orders with ChangeNotifier {
   final String token;
-  Orders(this.token) {}
+  final int companyId;
+  Orders(this.token,this.companyId) {}
 
   final OrdersService _ordersService = OrdersService();
 
@@ -27,7 +28,7 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchProcessedOrders() async {
-    final fetchedOrders = await _ordersService.fetchProcessedOrders(token);
+    final fetchedOrders = await _ordersService.fetchProcessedOrders(token,companyId);
     _processdOrders = fetchedOrders;
     notifyListeners();
   }
@@ -79,8 +80,8 @@ class OrdersService {
     }
   }
 
-  Future<List<ServiceInOrderDetails>> fetchProcessedOrders(String token) async {
-    final String apiUrl = '$host/api/events';
+  Future<List<ServiceInOrderDetails>> fetchProcessedOrders(String token,int companyId) async {
+    final String apiUrl = '$host/api/company/$companyId/notpending-services';
     print('I am in fetchProcessedOrdersssssss ');
 
     final response = await http.get(
@@ -101,12 +102,12 @@ class OrdersService {
           dueDate: date,
           imgUrl: e['id'],
           isCustomized: e['id'],
-          name: e['id'],
+          name: e['name'],
           orderServiceId: e['id'],
           orederdBy: e['id'],
           quantity: e['id'],
           status: e['id'],
-          totalPrice: e['id'],
+          totalPrice: e['price'],
         );
       }).toList();
     } else {

@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import '/screens/service_details.dart';
+import 'package:eventique_company_app/screens/service_details.dart';
 import 'package:flutter/material.dart';
 
 class SearchTile extends StatelessWidget {
@@ -67,16 +67,6 @@ class SearchTile extends StatelessWidget {
                         style: bodyMediumStyle!.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      Text(
-                        serviceCompany,
-                        softWrap: false,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: bodyMediumStyle.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],

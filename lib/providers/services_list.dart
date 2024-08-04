@@ -3,7 +3,6 @@ import 'package:eventique_company_app/models/one_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
 class AllServices with ChangeNotifier {
   final int companyId;
@@ -40,7 +39,7 @@ class AllServices with ChangeNotifier {
 // below we are handling the search
   //  List<OneService> searchResults=[];
   Future<List<OneService>> getSearchInAll(String text) async {
-    final fetchAllServices = await _searchService.getSearchInAll(text);
+    final fetchAllServices = await _searchService.getSearchInAll(text,token);
     return fetchAllServices;
   }
 
@@ -62,7 +61,7 @@ class ServicesService {
 
   Future<List<OneService>> fetchAllServices(int companyId) async {
     print('companyIddddddddddddddddddd $companyId');
-    final String apiUrl1 = '$host/api/companies/4/services';
+    final String apiUrl1 = '$host/api/companies/$companyId/services';
     final response = await http.get(
       Uri.parse(apiUrl1),
       headers: {
@@ -107,8 +106,9 @@ class ServicesService {
 
   //..................................
   Future<void> editActivation(bool isVisible, String token,int serviceId) async {
-    int activation=isVisible==true? 1:0;
+    int activation=isVisible==true? 0:1;
     print('tooooooken $token so what');
+    print('serviceIdddddd $serviceId ');
     final url = Uri.parse('$host/api/services/$serviceId/update-activation');
     try {
       final response = await http.post(
@@ -124,7 +124,7 @@ class ServicesService {
       );
 
       if (response.statusCode == 200) {
-         print('I am in editActivationnnnnnn ');
+         print('I am in editActivationnnnnnn 200 ');
       }
       else {
         print(response.body);
@@ -168,7 +168,7 @@ class ServicesService {
   //   List<String> imagesPicked,
   //   String serviceName,
   //   double servicePrice,
-  //   int selectedCat,
+  //   int selectedCatId,
   //   String description,
   //   bool selectInPackages,
   //   int serviceId
@@ -210,9 +210,9 @@ class ServicesService {
 }
 
 class SearchService {
-  final String apiUrl1 = '$host/api/search/all';
+  final String apiUrl1 = '$host/api/search_company';
 
-  Future<List<OneService>> getSearchInAll(String text) async {
+  Future<List<OneService>> getSearchInAll(String text,String token) async {
     print('I am in getSearchInAllllllllllllllll and going to get them');
 
     final response = await http.post(
@@ -220,6 +220,8 @@ class SearchService {
       headers: {
         'Accept': 'application/json',
         'locale': 'en', // or 'en' depending on your requirement
+        'Authorization': 'Bearer $token',
+
       },
       body: {'search_text': text},
     );
@@ -237,6 +239,8 @@ class SearchService {
               .map((img) => img['url'].toString())
               .toList();
         }
+        bool act= e['activation']==1?true:false;
+        bool discount= e['discounted_packages']==1?true:false;
 
         return OneService(
           serviceId: e['id'],
@@ -249,8 +253,8 @@ class SearchService {
           rating: e['average_rating'] != null
               ? double.parse(e['average_rating'].toString())
               : null, // Ensure rating is parsed as double
-          isActivated: e['activation'],
-          isDiscountedPackages: e['discounted_packages'],
+          isActivated: act ,
+          isDiscountedPackages: discount,
         );
       }).toList();
     } else {
