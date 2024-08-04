@@ -1,3 +1,4 @@
+import '/providers/statics_provider.dart';
 import '/providers/orders.dart';
 import '/providers/reviews.dart';
 import '/providers/services_list.dart';
@@ -30,6 +31,7 @@ String host = 'http://192.168.1.104:8000';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   final authProvider = AuthVendor();
   await authProvider.loadUserData();
 
@@ -51,6 +53,7 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final token = authProvider.token;
     final id = authProvider.userId;
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
@@ -69,14 +72,20 @@ class MyApp extends StatelessWidget {
           value: UsersProvider(),
         ),
         ChangeNotifierProvider.value(
-          value: Orders(token),
+          value: Orders(token,id),
         ),
         ChangeNotifierProvider.value(
-          value: AllServices(id,token),
+          value: AllServices(id, token),
         ),
         ChangeNotifierProvider.value(
           value: Reviews(token),
         ),
+        ChangeNotifierProvider.value(
+          value: StatisticsProvider(
+            token,
+            id,
+          ),
+        )
       ],
       child: Consumer<AuthVendor>(
         builder: (ctx, auth, _) => MaterialApp(

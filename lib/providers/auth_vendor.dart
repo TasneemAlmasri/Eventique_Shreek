@@ -11,18 +11,18 @@ class AuthVendor with ChangeNotifier {
   String _firebaseToken = '';
   int _userId = 0;
   Map<String, dynamic> _userData = {
-    'firstName': 'tasneem',
-    'lastName': 'masri',
-    'email': 'beecake34@gmail.com',
+    'firstName': '',
+    'lastName': '',
+    'email': '',
     'password': '',
     'confirmPassword': '',
-    'phone': '0957515671',
-    'companyName': 'BEE Cake',
-    'registrationNumber': '1234567',
-    'location': 'Abbasin',
-    'city': 'syris',
-    'country': 'damascus',
-    'description': 'an amazing cake you find here اذا دقت علقت',
+    'phone': '',
+    'companyName': '',
+    'registrationNumber': '',
+    'location': '',
+    'city': '',
+    'country': '',
+    'description': '',
     'acceptPrivacy': true,
     'image': '',
     'coverImage': '',
@@ -38,6 +38,13 @@ class AuthVendor with ChangeNotifier {
     final userData = await StorageManager.loadUserData();
     if (userData != null && userData['loginToken'] != null) {
       _loginToken = userData['loginToken'];
+      print('Loaded login token:$_loginToken');
+      // _userId = userData['userId'];
+      // print('Loaded vendorId:$_userId');
+      // _firebaseToken = userData['firebaseToken'];
+      // _userData['companyName'] = userData['userName'];
+      // _userData['email'] = userData['userEmail'];
+      // _userData['image'] = userData['userImage'];
       _isAuthenticated = true;
     } else {
       _isAuthenticated = false;
@@ -149,14 +156,21 @@ class AuthVendor with ChangeNotifier {
       print('firebaseToken:$_firebaseToken');
       _userId = responseData['data']['id'];
       print('userId:$_userId');
-      _userData['companyName'] = responseData['data']['name'];
+      _userData['companyName'] = responseData['data']['company_name'];
       print('userName:${_userData['companyName']}');
       _userData['email'] = responseData['data']['email'];
       print('userEmail:${_userData['email']}');
       _userData['image'] = responseData['data']['images'][0]['url'];
       print('userImage:${_userData['image']}');
-      await StorageManager.updateUserData(firebaseToken: _firebaseToken);
-      await authenticateUserWithCustomToken(_firebaseToken);
+      await StorageManager.saveUserData(
+        userId,
+        _loginToken,
+        _firebaseToken,
+        _userData['companyName'],
+        _userData['email'],
+        _userData['image'],
+      );
+      // await authenticateUserWithCustomToken(_firebaseToken);
       notifyListeners();
     } catch (error) {
       print(error);
@@ -212,7 +226,7 @@ class AuthVendor with ChangeNotifier {
       print('userImage:${_userData['image']}');
       _userData['email'] = responseData['data']['email'];
       print('email:${_userData['email']}');
-      _userData['phone'] = responseData['data']['phone_number'];
+      _userData['phone'] = responseData['data']['phone_number'].toString();
       print(_userData['phone']);
       _userData['description'] = responseData['data']['description'];
       print(_userData['description']);
@@ -223,8 +237,14 @@ class AuthVendor with ChangeNotifier {
       _userData['country'] = responseData['data']['country'];
       print(_userData['country']);
       await StorageManager.updateUserData(
-          firebaseToken: _firebaseToken, loginToken: _loginToken);
-      await authenticateUserWithCustomToken(_firebaseToken);
+        firebaseToken: _firebaseToken,
+        loginToken: _loginToken,
+        userId: _userId,
+        userName: _userData['companyName'],
+        userEmail: _userData['email'],
+        userImage: _userData['image'],
+      );
+      // await authenticateUserWithCustomToken(_firebaseToken);
       notifyListeners();
     } catch (error) {
       print(error.toString());
@@ -258,7 +278,6 @@ class AuthVendor with ChangeNotifier {
         url,
         headers: {
           'Accept': 'application/json',
-          //'Authorization': 'Bearer $_signUpToken',
         },
         body: {
           'email': email,
@@ -346,14 +365,17 @@ class AuthVendor with ChangeNotifier {
   }
 
   Future<void> RestVerificationCode(String email, String code) async {
-    final url = Uri.parse('$host/api/verAuthOTP');
+    final url = Uri.parse('$host/api/companies/verEmail');
     print(url);
+    print(email);
     print('$code+++++++++++++++++');
+    print(token);
     try {
       final response = await http.post(
         url,
         headers: {
           'Accept': 'application/json',
+          'Authorization': 'Bearer $_loginToken',
         },
         body: {
           'email': email,
@@ -375,46 +397,49 @@ class AuthVendor with ChangeNotifier {
   }
 
 //update company logo image
-  Future<void> updateLogoImage(String newImageUrl) async {
-    final url = Uri.parse('$host/api/resetImage');
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $_loginToken',
-        },
-        body: {
-          'image': newImageUrl,
-        },
-      );
+  // Future<void> updateLogoImage(String newImageUrl) async {
+  //   final url = Uri.parse('$host/api/resetImage');
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {
+  //         'Accept': 'application/json',
+  //         'Authorization': 'Bearer $_loginToken',
+  //       },
+  //       body: {
+  //         'image': newImageUrl,
+  //       },
+  //     );
 
-      final responseData = json.decode(response.body);
+  //     final responseData = json.decode(response.body);
 
-      if (responseData['Status'] == 'Failed') {
-        throw Exception(responseData['Error']);
-      }
+  //     if (responseData['Status'] == 'Failed') {
+  //       throw Exception(responseData['Error']);
+  //     }
 
-      // Update local user data
-      _userData['image'] = newImageUrl;
-      print(_userData['image']);
-      await StorageManager.updateUserData(userImage: _userData['image']);
-      notifyListeners();
-    } catch (error) {
-      print(error.toString());
-      throw error; // Re-throw the error for handling in UI
-    }
-  }
+  //     // Update local user data
+  //     _userData['image'] = newImageUrl;
+  //     print(_userData['image']);
+  //     await StorageManager.updateUserData(userImage: _userData['image']);
+  //     notifyListeners();
+  //   } catch (error) {
+  //     print(error.toString());
+  //     throw error; // Re-throw the error for handling in UI
+  //   }
+  // }
 
 //update company name,or location or .....
   Future<void> updateInfo(String dataName, String newData) async {
-    final url = Uri.parse('$host/api/resetName');
+    final url = Uri.parse('$host/api/companies/update');
+    print(dataName);
+    print(newData);
     try {
-      final response = await http.post(
+      final response = await http.put(
         url,
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $_loginToken',
+          'locale': 'en'
         },
         body: {
           dataName: newData,
@@ -428,9 +453,9 @@ class AuthVendor with ChangeNotifier {
       }
 
       // Update local user data
-      _userData['companyName'] = newData;
-      print(_userData['companyName']);
-      await StorageManager.updateUserData(userName: _userData['companyName']);
+      // _userData['companyName'] = newData;
+      // print(_userData['companyName']);
+      //await StorageManager.updateUserData(userName: _userData['companyName']);
       notifyListeners();
     } catch (error) {
       print(error.toString());
@@ -440,7 +465,7 @@ class AuthVendor with ChangeNotifier {
 
   Future<void> passwordRest(
       String oldPassword, String password, String confirmPassword) async {
-    final url = Uri.parse('$host/api/changePass');
+    final url = Uri.parse('$host/api/companies/changePass');
     print(url);
     try {
       final response = await http.post(
@@ -470,8 +495,9 @@ class AuthVendor with ChangeNotifier {
   }
 
   Future<void> emailRest(String newEmail) async {
-    final url = Uri.parse('$host/api/changeEmailOTP');
+    final url = Uri.parse('$host/api/companies/changeEmailOTP');
     print(url);
+    print(token);
     try {
       final response = await http.post(
         url,
@@ -505,14 +531,11 @@ class AuthVendor with ChangeNotifier {
     final url = Uri.parse('$host/api/companies/logout');
     print(url);
     try {
-      final response = await http.post(
+      final response = await http.get(
         url,
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $_loginToken',
-        },
-        body: {
-          'email': _userData['email'],
         },
       );
 

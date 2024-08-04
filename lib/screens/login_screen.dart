@@ -1,9 +1,8 @@
 //taghreed
-import 'package:eventique_company_app/screens/navigation_bar_page.dart';
 
 import '/color.dart';
-import 'package:eventique_company_app/providers/auth_vendor.dart';
-import '/screens/verification_screen.dart';
+import '/providers/auth_vendor.dart';
+import '/screens/navigation_bar_page.dart';
 import '../widgets/login/login_form.dart';
 import '/widgets/login/circular_shape.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       await Provider.of<AuthVendor>(context, listen: false)
           .login(email, password);
+      setState(() {
+        _isLoading = false;
+      });
       Navigator.of(ctx).popAndPushNamed(NavigationBarPage.routeName);
       ScaffoldMessenger.of(ctx).showSnackBar(
         SnackBar(
@@ -39,16 +41,15 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (error) {
       print(error.toString());
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(ctx).showSnackBar(
         SnackBar(
           content: Text('An error occurred. Please try again.'),
           backgroundColor: Colors.red,
         ),
       );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 

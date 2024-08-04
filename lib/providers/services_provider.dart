@@ -54,7 +54,7 @@ class ServiceProvider with ChangeNotifier {
     String description,
     bool selectInPackages,
   ) async {
-    final url = Uri.parse('$host/api/shares');
+    final url = Uri.parse('$host/api/services');
     print(url);
     print(token);
     try {
@@ -66,7 +66,15 @@ class ServiceProvider with ChangeNotifier {
           'locale': 'en',
           'Content-Type': 'application/json', // Added Content-Type header
         },
-        body: jsonEncode({}),
+        body: jsonEncode({
+          'name': serviceName,
+          'description': description,
+          'images': imagesPicked,
+          'price': servicePrice,
+          'category_id': selectedCat,
+          'discounted_packages': selectInPackages,
+          'company_id': id,
+        }),
       );
 
       final responseData = json.decode(response.body);

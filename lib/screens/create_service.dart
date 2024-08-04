@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:eventique_company_app/providers/services_provider.dart';
+import 'package:eventique_company_app/screens/navigation_bar_page.dart';
 import 'package:eventique_company_app/widgets/add_service_form.dart';
 import 'package:eventique_company_app/widgets/pickers/multiple_image_picker.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import '/color.dart';
 import 'package:flutter/material.dart';
@@ -38,9 +40,12 @@ class _CreateServiceState extends State<CreateService> {
         String imageUrl = await storageRef.getDownloadURL();
         imageUrls.add(imageUrl);
       }
-
+      Navigator.of(context).popAndPushNamed(NavigationBarPage.routeName);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Images uploaded successfully')),
+        SnackBar(
+          content: Text('Service has been added successfully'),
+          backgroundColor: Colors.green,
+        ),
       );
       return imageUrls;
     } catch (e) {
@@ -66,7 +71,7 @@ class _CreateServiceState extends State<CreateService> {
       });
       List<String> imagesUrl = await _uploadImages(imagesPicked);
       print(imagesUrl);
-      await Provider.of<ServiceProvider>(context).addNewService(
+      await Provider.of<ServiceProvider>(context, listen: false).addNewService(
           imagesUrl,
           serviceName,
           servicePrice,

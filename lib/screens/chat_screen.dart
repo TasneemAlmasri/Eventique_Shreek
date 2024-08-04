@@ -41,7 +41,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    // authenticateUser();
+    authenticateUser();
   }
 
   @override

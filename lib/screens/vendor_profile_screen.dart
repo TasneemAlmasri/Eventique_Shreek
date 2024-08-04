@@ -1,19 +1,15 @@
-//taghreed
 import 'dart:io';
-
-import 'package:eventique_company_app/providers/theme_provider.dart';
-import 'package:eventique_company_app/screens/email_rest_screen.dart';
-import 'package:eventique_company_app/screens/password_rest_screen.dart';
-import 'package:eventique_company_app/widgets/pickers/user_image_picker.dart';
+import 'package:provider/provider.dart';
+import '/providers/theme_provider.dart';
+import '/providers/auth_vendor.dart';
+import '/screens/email_rest_screen.dart';
+import '/screens/password_rest_screen.dart';
+import '/widgets/pickers/user_image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '/color.dart';
-import 'package:eventique_company_app/providers/auth_vendor.dart';
 import '/widgets/vendor_profile/vendor_profile_item.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class VendorProfileScreen extends StatefulWidget {
   static const routeName = '/vendor-profile';
@@ -30,7 +26,8 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
       Provider.of<AuthVendor>(context, listen: false).userData['companyName'] =
           newData;
     });
-    Provider.of<AuthVendor>(context, listen: false).updateInfo('', newData);
+    Provider.of<AuthVendor>(context, listen: false)
+        .updateInfo('company_name', newData);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Company Name updated successfully.'),
@@ -44,10 +41,11 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
       Provider.of<AuthVendor>(context, listen: false).userData['description'] =
           newData;
     });
-    Provider.of<AuthVendor>(context, listen: false).updateInfo('', newData);
+    Provider.of<AuthVendor>(context, listen: false)
+        .updateInfo('description', newData);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Company Name updated successfully.'),
+        content: Text('Description updated successfully.'),
         backgroundColor: Colors.green,
       ),
     );
@@ -58,10 +56,11 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
       Provider.of<AuthVendor>(context, listen: false).userData['phone'] =
           newData;
     });
-    Provider.of<AuthVendor>(context, listen: false).updateInfo('', newData);
+    Provider.of<AuthVendor>(context, listen: false)
+        .updateInfo('phone_number', newData);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Company Name updated successfully.'),
+        content: Text('Phone number updated successfully.'),
         backgroundColor: Colors.green,
       ),
     );
@@ -91,8 +90,8 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
       await ref.putFile(image);
       final imageURL = await ref.getDownloadURL();
       print('$imageURL+++++++++++++++++++++++++++++++++++++++');
-      // Update user profile image in your backend
-      Provider.of<AuthVendor>(context, listen: false).updateLogoImage(imageURL);
+      Provider.of<AuthVendor>(context, listen: false)
+          .updateInfo('image', imageURL);
 
       setState(() {
         Provider.of<AuthVendor>(context, listen: false).userData['image'] =
@@ -100,7 +99,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('image updated successfully.'),
+          content: Text('Image updated successfully.'),
           backgroundColor: Colors.green,
         ),
       );
@@ -191,6 +190,10 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
     ThemeMode? themeMode = themeProvider.getThemeMode();
     bool isLight = themeMode == ThemeMode.light ||
         (sysBrightness == Brightness.light && themeMode != ThemeMode.dark);
+
+    // Debugging statements to check vendorInfo
+    print(vendorInfo);
+
     return Scaffold(
       backgroundColor: white,
       body: Stack(
@@ -237,7 +240,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
             left: 50,
             child: UserImagePicker(
               imagePickedFn: _uploadImage,
-              defaultImageUrl: vendorInfo['image'],
+              defaultImageUrl: vendorInfo['image'] ?? '',
               imageRadius: 60,
             ),
           ),
@@ -252,7 +255,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                 children: [
                   VendorProfileItem(
                     title: 'Company Name',
-                    userInfo: vendorInfo['companyName']!,
+                    userInfo: vendorInfo['companyName'] ?? 'N/A',
                     subtitle: 'This name will be visible to other \nusers.',
                     iconData: Icons.person,
                     isLight: isLight,
@@ -260,7 +263,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                   ),
                   VendorProfileItem(
                     title: 'Email',
-                    userInfo: vendorInfo['email'],
+                    userInfo: vendorInfo['email'] ?? 'N/A',
                     subtitle: '',
                     iconData: Icons.email,
                     isLight: isLight,
@@ -276,7 +279,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                   ),
                   VendorProfileItem(
                     title: 'About',
-                    userInfo: vendorInfo['description'],
+                    userInfo: vendorInfo['description'] ?? 'N/A',
                     subtitle: '',
                     iconData: Icons.description,
                     isLight: isLight,
@@ -284,23 +287,31 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                   ),
                   VendorProfileItem(
                     title: 'Location',
-                    userInfo: vendorInfo['location'],
+                    userInfo:
+                        '${vendorInfo['city']},${vendorInfo['country']},${vendorInfo['location']},' ??
+                            'N/A',
                     subtitle: '',
                     iconData: Icons.location_on,
                     isLight: isLight,
+                    //    onUpdate: _updateLocation,
                   ),
                   VendorProfileItem(
                       title: 'Working Hours',
-                      userInfo: vendorInfo['days'][0],
+                      userInfo: vendorInfo['days'] != null &&
+                              vendorInfo['days'].isNotEmpty
+                          ? vendorInfo['days'][0].toString()
+                          : 'N/A',
                       subtitle: 'vendorInfo[opening]',
                       iconData: Icons.timer,
                       isLight: isLight),
                   VendorProfileItem(
-                      title: 'Phone',
-                      userInfo: vendorInfo['phone'],
-                      subtitle: '',
-                      iconData: Icons.call,
-                      isLight: isLight)
+                    title: 'Phone',
+                    userInfo: vendorInfo['phone'] ?? 'N/A',
+                    subtitle: '',
+                    iconData: Icons.call,
+                    isLight: isLight,
+                    onUpdate: _updatePhoneNum,
+                  ),
                 ],
               ),
             ),
