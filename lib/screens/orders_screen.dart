@@ -6,26 +6,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 final List<ServiceInOrderDetails> orders = [
-  ServiceInOrderDetails(
-      dueDate: DateTime.now(),
-      imgUrl: 'dd',
-      isCustomized: 1,
-      name: 'test',
-      orderServiceId: 1,
-      orederdBy: 'lala',
-      quantity: 43,
-      status: 'pending',
-      totalPrice: 53),
-  ServiceInOrderDetails(
-      dueDate: DateTime.now(),
-      imgUrl: 'ss',
-      isCustomized: 0,
-      name: 'rse',
-      orderServiceId: 2,
-      orederdBy: 'lalalo',
-      quantity: 43,
-      status: 'pending',
-      totalPrice: 53),
+  // ServiceInOrderDetails(
+  //     dueDate: DateTime.now(),
+  //     imgUrl: 'dd',
+  //     isCustomized: 1,
+  //     name: 'test',
+  //     orderServiceId: 1,
+  //     orederdBy: 'lala',
+  //     quantity: 43,
+  //     status: 'pending',
+  //     totalPrice: 53),
+  // ServiceInOrderDetails(
+  //     dueDate: DateTime.now(),
+  //     imgUrl: 'ss',
+  //     isCustomized: 0,
+  //     name: 'rse',
+  //     orderServiceId: 2,
+  //     orederdBy: 'lalalo',
+  //     quantity: 43,
+  //     status: 'pending',
+  //     totalPrice: 53),
 ];
 
 class OrdersScreen extends StatelessWidget {
@@ -127,7 +127,8 @@ class OrdersScreen extends StatelessWidget {
               return OrderTile(
                 fromProcessed: fromProcessed,
                 dueDate: orders[i].dueDate,
-                isCustomized: orders[i].isCustomized,
+                // isCustomized: orders[i].isCustomized,
+                // customDescription: ,
                 orderedBy: orders[i].orederdBy,
                 quantity: orders[i].quantity,
                 serviceName: orders[i].name,

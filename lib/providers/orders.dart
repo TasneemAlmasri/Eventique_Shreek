@@ -63,15 +63,16 @@ class OrdersService {
       return events.map((e) {
         final date = DateTime.parse(e['date']);
         return ServiceInOrderDetails(
-          dueDate: date,
+          name: e['name'],
           imgUrl: e['id'],
-          isCustomized: e['id'],
-          name: e['id'],
-          orderServiceId: e['id'],
           orederdBy: e['id'],
+          arrivDate: e['id'],
+          dueDate: date,
           quantity: e['id'],
-          status: e['id'],
-          totalPrice: e['id'],
+          totalPrice: e['price'],
+          // isCustomized:1, just in custom
+          // customDescription: e['??????????????'],
+          status: e['id'], //depends on the route
         );
       }).toList();
     } else {
@@ -99,15 +100,18 @@ class OrdersService {
       return events.map((e) {
         final date = DateTime.parse(e['date']);
         return ServiceInOrderDetails(
-          dueDate: date,
-          imgUrl: e['id'],
-          isCustomized: e['id'],
           name: e['name'],
-          orderServiceId: e['id'],
+          imgUrl: e['id'],
           orederdBy: e['id'],
+          arrivDate: e['id'],
+          dueDate: date,
           quantity: e['id'],
-          status: e['id'],
           totalPrice: e['price'],
+          
+          // isCustomized:1, just in custom
+          // customDescription: e['??????????????'],
+          status: e['id'], //depends on the route
+          
         );
       }).toList();
     } else {

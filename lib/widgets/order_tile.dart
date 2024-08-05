@@ -12,14 +12,16 @@ class OrderTile extends StatefulWidget {
       required this.orderedBy,
       required this.quantity,
       required this.dueDate,
-      required this.isCustomized,
+       this.isCustomized,
+       this.customDescription,
       required this.totalPrice,
       required this.url});
   final String serviceName, orderedBy;
   final int quantity;
   int? fromProcessed;
   final DateTime dueDate;
-  final int isCustomized;
+  final int? isCustomized;
+   String? customDescription;
   final double totalPrice;
   final String url;
 
@@ -40,8 +42,14 @@ class _OrderTileState extends State<OrderTile> {
       margin: const EdgeInsets.fromLTRB(0, 14, 0, 8),
       color: const Color(0xFFFFFDF0),
       elevation: 0,
-      child: GestureDetector(
-        onTap: () {},
+      child: InkWell(
+        onTap: () {
+          // Navigator.push(
+          // context,
+          // MaterialPageRoute(builder: (ctx) => ServiceDetails(serviceId: serviceId))
+        
+          // );
+        },
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -69,7 +77,7 @@ class _OrderTileState extends State<OrderTile> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.isCustomized == 0
+                        widget.isCustomized == null
                             ? widget.serviceName
                             : '${widget.serviceName} (customized)',
                         softWrap: false,
