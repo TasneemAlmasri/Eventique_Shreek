@@ -106,7 +106,7 @@ class MainDrawer extends StatelessWidget {
             Icons.handshake,
             'Contract',
             () async {
-              const fileName = 'document.pdf';
+              const fileName = 'terms and condition.pdf';
               
               // Call the download function
              await reviewsProvider.downloadPdf(fileName);

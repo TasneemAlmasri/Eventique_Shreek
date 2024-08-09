@@ -185,6 +185,7 @@ class AuthVendor with ChangeNotifier {
         url,
         headers: {
           'Accept': 'application/json',
+          'locale':'en'
         },
         body: {
           'email': email,
@@ -194,6 +195,7 @@ class AuthVendor with ChangeNotifier {
 
       // Check for a valid response
       if (response.statusCode != 200) {
+        print(response.body);
         throw Exception('Failed to login');
       }
 

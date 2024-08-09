@@ -1,5 +1,6 @@
 class ServiceInOrderDetails {
-  final int? orderServiceId;
+  final int? serviceId;
+  final int? orderId;
   final int quantity;
   final double totalPrice;
   final String imgUrl;
@@ -15,7 +16,8 @@ class ServiceInOrderDetails {
       {required this.status,
       required this.name,
       required this.orederdBy,
-       this.orderServiceId,
+       this.serviceId,
+       this.orderId,
       required this.quantity,
       required this.totalPrice,
       required this.imgUrl,

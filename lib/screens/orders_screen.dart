@@ -5,31 +5,38 @@ import '/widgets/order_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-final List<ServiceInOrderDetails> orders = [
-  // ServiceInOrderDetails(
-  //     dueDate: DateTime.now(),
-  //     imgUrl: 'dd',
-  //     isCustomized: 1,
-  //     name: 'test',
-  //     orderServiceId: 1,
-  //     orederdBy: 'lala',
-  //     quantity: 43,
-  //     status: 'pending',
-  //     totalPrice: 53),
-  // ServiceInOrderDetails(
-  //     dueDate: DateTime.now(),
-  //     imgUrl: 'ss',
-  //     isCustomized: 0,
-  //     name: 'rse',
-  //     orderServiceId: 2,
-  //     orederdBy: 'lalalo',
-  //     quantity: 43,
-  //     status: 'pending',
-  //     totalPrice: 53),
-];
+class OrdersScreen extends StatefulWidget {
+  const OrdersScreen({Key? key}) : super(key: key);
 
-class OrdersScreen extends StatelessWidget {
-  const OrdersScreen({super.key});
+  @override
+  _OrdersScreenState createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final orderProvider = Provider.of<Orders>(context, listen: false);
+      await Future.wait([
+        orderProvider.fetchPendingOrders(),
+        orderProvider.fetchProcessedOrders(),
+      ]);
+    } catch (error) {
+      // Handle any errors here
+      print('Error fetching orders: $error');
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading indicator
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,70 +46,69 @@ class OrdersScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         backgroundColor: beige,
-        body: CustomScrollView(
-          slivers: <Widget>[
-            SliverAppBar(
-              pinned: true,
-              backgroundColor: const Color(0xFFFFFDF0),
-              // shadowColor: Color(0xFFFFFDF0),
-              surfaceTintColor: const Color(0xFFFFFDF0),
-              elevation: 0,
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(50),
-                child: Container(
-                  padding: EdgeInsets.all(6),
-                  margin: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xffEFEEEA),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: TabBar(
-                    dividerColor: const Color(0xffEFEEEA),
-                    labelColor: primary,
-                    unselectedLabelColor: const Color(0xffE791A5),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: const Color(0xFFFFFDF0),
-                    ),
-                    tabs: const [
-                      Tab(
-                        child: Text(
-                          'Pending',
-                          style: TextStyle(
-                              fontFamily: 'IrishGrover', fontSize: 20),
-                        ),
-                      ),
-                      Tab(
-                        child: Text(
-                          'Processed',
-                          style: TextStyle(
-                              fontFamily: 'IrishGrover', fontSize: 20),
-                        ),
-                      ),
-                    ],
-                  ),
+        body: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: primary, // Set color if needed
                 ),
-              ),
-            ),
-            SliverFillRemaining(
-              child: TabBarView(
-                children: [
-                  buildOrderList(
-                      // orderProvider.pendingOrders
-                      orders,
-                      context,
-                      null),
-                  buildOrderList(
-                      // orderProvider.proccecdOrders
-                      orders,
-                      context,
-                      1),
+              )
+            : CustomScrollView(
+                slivers: <Widget>[
+                  SliverAppBar(
+                    pinned: true,
+                    backgroundColor: const Color(0xFFFFFDF0),
+                    surfaceTintColor: const Color(0xFFFFFDF0),
+                    elevation: 0,
+                    bottom: PreferredSize(
+                      preferredSize: const Size.fromHeight(50),
+                      child: Container(
+                        padding: EdgeInsets.all(6),
+                        margin: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffEFEEEA),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: TabBar(
+                          dividerColor: const Color(0xffEFEEEA),
+                          labelColor: primary,
+                          unselectedLabelColor: const Color(0xffE791A5),
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicator: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: const Color(0xFFFFFDF0),
+                          ),
+                          tabs: const [
+                            Tab(
+                              child: Text(
+                                'Pending',
+                                style: TextStyle(
+                                    fontFamily: 'IrishGrover', fontSize: 20),
+                              ),
+                            ),
+                            Tab(
+                              child: Text(
+                                'Processed',
+                                style: TextStyle(
+                                    fontFamily: 'IrishGrover', fontSize: 20),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SliverFillRemaining(
+                    child: TabBarView(
+                      children: [
+                        buildOrderList(
+                            orderProvider.pendingOrders, context, null),
+                        buildOrderList(
+                            orderProvider.proccecdOrders, context, 1),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -127,13 +133,16 @@ class OrdersScreen extends StatelessWidget {
               return OrderTile(
                 fromProcessed: fromProcessed,
                 dueDate: orders[i].dueDate,
-                // isCustomized: orders[i].isCustomized,
-                // customDescription: ,
+                isCustomized: orders[i].isCustomized,
+                customDescription: orders[i].customDescription,
                 orderedBy: orders[i].orederdBy,
                 quantity: orders[i].quantity,
                 serviceName: orders[i].name,
                 totalPrice: orders[i].totalPrice,
                 url: orders[i].imgUrl,
+                receivedDate: orders[i].arrivDate,
+                orderId:orders[i].orderId ,
+                servieId: orders[i].serviceId,
               );
             },
           );

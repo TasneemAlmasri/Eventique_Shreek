@@ -26,10 +26,12 @@ class AllServices with ChangeNotifier {
 
   Future<void> deleteService(serviceId) async {
     await _servicesService.deleteService(token, serviceId);
+    fetchAllServices();
   }
 
    Future<void> editActivation(isVisible,serviceId) async{
     await _servicesService.editActivation(isVisible, token, serviceId);
+    fetchAllServices();
    }
 
   OneService findById(int id) {

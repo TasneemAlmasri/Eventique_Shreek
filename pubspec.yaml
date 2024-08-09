@@ -57,6 +57,8 @@ dependencies:
   date_picker_timeline: ^1.2.6
   horizontal_picker: ^1.2.0
   permission_handler: ^11.3.1
+  open_file: ^3.3.2
+  url_launcher: ^6.3.0
  
 
 dev_dependencies:

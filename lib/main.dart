@@ -26,8 +26,8 @@ import '/screens/sign_up_screens/sign_up_screen2.dart';
 import '/screens/sign_up_screens/sign_up_screen3.dart';
 import '/screens/sign_up_screens/sign_up_screen4.dart';
 
-String host = 'http://192.168.1.104:8000';
-// String host = 'http://127.0.0.1:8000';
+const String host = 'http://192.168.1.104:8000';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
