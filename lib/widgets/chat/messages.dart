@@ -7,15 +7,15 @@ class Messages extends StatelessWidget {
   final int userId;
 
   Messages(this.userId);
-  void _addToCart(DocumentSnapshot doc) {
-    // Logic to add the service to the cart
-  }
+
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection('chat')
-          .where('userId', isEqualTo: userId)
+          .where('userId',
+              isEqualTo: userId) // Only show messages from the specific user
           .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (ctx, chatSnapshot) {
@@ -44,30 +44,24 @@ class Messages extends StatelessWidget {
           reverse: true,
           itemCount: chatDocs.length,
           itemBuilder: (ctx, i) {
-            if (chatDocs[i]['type'] == 'service') {
+            final message = chatDocs[i];
+            if (message['type'] == 'service') {
               return ListTile(
-                title: Text('Service: ${chatDocs[i]['service']}'),
+                title: Text('Service: ${message['service']}'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Description: ${chatDocs[i]['description']}'),
-                    Text('Price: \$${chatDocs[i]['price']}'),
-                    ElevatedButton(
-                      onPressed: () {
-                        _addToCart(chatDocs[i]);
-                      },
-                      child: Text('Add to Cart'),
-                    ),
+                    Text('Description: ${message['description']}'),
+                    Text('Price: \$${message['price']}'),
                   ],
                 ),
               );
             } else {
               return MessageBubble(
-                chatDocs[i]['text'],
-                chatDocs[i]['vendorName'],
-                chatDocs[i]['vendorImage'],
-                chatDocs[i]['vendorId'] ==
-                    FirebaseAuth.instance.currentUser!.uid,
+                message['text'],
+                message['vendorName'],
+                message['vendorImage'],
+                message['vendorId'] == FirebaseAuth.instance.currentUser!.uid,
                 key: ValueKey(chatDocs[i].id),
               );
             }

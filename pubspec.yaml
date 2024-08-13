@@ -57,6 +57,7 @@ dependencies:
   date_picker_timeline: ^1.2.6
   horizontal_picker: ^1.2.0
   permission_handler: ^11.3.1
+  flutter_local_notifications: ^17.2.2
  
 
 dev_dependencies:

@@ -69,10 +69,12 @@ class _CreateCustomizedServiceState extends State<CreateCustomizedService> {
         child: Container(
           width: size.width * 0.8,
           child: Form(
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
+                SizedBox(height: size.height * 0.02),
                 Text(
                   'Create customized service',
                   style: TextStyle(
@@ -81,9 +83,45 @@ class _CreateCustomizedServiceState extends State<CreateCustomizedService> {
                     color: primary,
                   ),
                 ),
-                SizedBox(
-                  height: size.height * 0.04,
+                SizedBox(height: size.height * 0.02),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Original service',
+                    style: TextStyle(
+                      fontFamily: 'CENSCBK',
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromRGBO(87, 14, 87, 1),
+                    ),
+                  ),
                 ),
+                SizedBox(height: size.height * 0.02),
+                SizedBox(
+                  width: size.width * 0.7,
+                  child: DropdownButtonFormField(
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.only(left: 15),
+                      label: Text('Service'),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    items: _services
+                        .map((service) => DropdownMenuItem(
+                              value: service,
+                              child: Text(service.name!),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedService = value!;
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(height: size.height * 0.02),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
                   alignment: Alignment.centerLeft,
@@ -97,39 +135,32 @@ class _CreateCustomizedServiceState extends State<CreateCustomizedService> {
                     ),
                   ),
                 ),
+                SizedBox(height: size.height * 0.02),
                 SizedBox(
-                  height: size.height * 0.02,
-                ),
-                SingleChildScrollView(
-                  child: SizedBox(
-                    width: size.width * 0.7,
-                    child: TextFormField(
-                      key: ValueKey('description'),
-                      keyboardType: TextInputType.text,
-                      maxLines: 3,
-                      validator: (description) {
-                        if (description!.isEmpty) {
-                          return 'This field is required';
-                        }
-
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(15),
-                        hintText: 'Description ...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                  width: size.width * 0.7,
+                  child: TextFormField(
+                    key: ValueKey('description'),
+                    keyboardType: TextInputType.text,
+                    maxLines: 3,
+                    validator: (description) {
+                      if (description!.isEmpty) {
+                        return 'This field is required';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(15),
+                      hintText: 'Description ...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      onSaved: (description) {
-                        _newDescription = description!;
-                      },
                     ),
+                    onSaved: (description) {
+                      _newDescription = description!;
+                    },
                   ),
                 ),
-                SizedBox(
-                  height: size.height * 0.02,
-                ),
+                SizedBox(height: size.height * 0.02),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
                   alignment: Alignment.centerLeft,
@@ -143,9 +174,7 @@ class _CreateCustomizedServiceState extends State<CreateCustomizedService> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: size.height * 0.02,
-                ),
+                SizedBox(height: size.height * 0.02),
                 SizedBox(
                   width: size.width * 0.7,
                   child: TextFormField(
@@ -155,12 +184,11 @@ class _CreateCustomizedServiceState extends State<CreateCustomizedService> {
                       if (price!.isEmpty) {
                         return 'This field is required';
                       }
-
                       return null;
                     },
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.all(15),
-                      hintText: 'Enter the new price...',
+                      hintText: 'Price ...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -170,42 +198,16 @@ class _CreateCustomizedServiceState extends State<CreateCustomizedService> {
                     },
                   ),
                 ),
-                // SizedBox(
-                //   height: size.height * 0.02,
-                // ),
-                // Align(
-                //   alignment: Alignment.centerRight,
-                //   child: IconButton(
-                //     onPressed: () {
-                //       //if the field are empty will occured an error
-                //     },
-                //     icon: Icon(
-                //       Icons.send,
-                //     ),
-                //     color: primary,
-                //     iconSize: 30,
-                //   ),
-                // )
+                SizedBox(height: size.height * 0.02),
+                ElevatedButton(
+                  onPressed: _saveCustomizedService,
+                  child: Text('Create service'),
+                ),
               ],
             ),
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          child: Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          child: Text('send'),
-          onPressed: () {
-            _saveCustomizedService();
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
     );
   }
 }
