@@ -9,7 +9,7 @@ class Orders with ChangeNotifier {
   final int companyId;
   Orders(this.token,this.companyId) {
     fetchPendingOrders();
-    fetchPendingOrders();
+    fetchProcessedOrders();
   }
 
   final OrdersService _ordersService = OrdersService();
@@ -36,14 +36,16 @@ class Orders with ChangeNotifier {
 
   Future<void> acceptService(int orderID,int serviceID,int? isCustomized) async {
     _ordersService.acceptService(token,orderID,serviceID,isCustomized);
-     fetchPendingOrders();
-    fetchPendingOrders();
+     await fetchPendingOrders();
+    await fetchProcessedOrders();
+    notifyListeners();
   }
 
   Future<void> rejectService(int orderID,int serviceID,int? isCustomized) async {
     _ordersService.rejectService(token,orderID,serviceID,isCustomized);
-     fetchPendingOrders();
-    fetchPendingOrders();
+     await fetchPendingOrders();
+    await fetchProcessedOrders();
+    notifyListeners();
   }
 }
 
@@ -58,13 +60,14 @@ Future<List<ServiceInOrderDetails>> fetchPendingOrders(String token, int company
     Uri.parse(apiUrl),
     headers: {
       'Accept': 'application/json',
-      'locale': 'ar',
+      'locale': 'en',
       'Authorization': 'Bearer $token',
     },
   );
 
   if (response.statusCode == 200) {
     print('I am in fetchPendingOrder 200');
+    print(response.body);
     final data = jsonDecode(response.body);
     final services = data['services'] as List;
     final customizedServices = data['customized_services'] as List;
@@ -205,6 +208,7 @@ print('fetched processed goooooooooooooood');
 }
 
   void acceptService(String token, int orderID, int serviceID, int? isCustomized) async {
+    print('token $token orderID $orderID serviceID $serviceID isCustomized $isCustomized');
   final String apiUrl = '$host/api/update_service_status';
   print('I am in acceptService');
   print('orderId $orderID and serviceId $serviceID');

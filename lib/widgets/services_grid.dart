@@ -74,22 +74,27 @@ class _ServicesGridState extends State<ServicesGrid> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                   )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                        child: Text(
-                          'No Services Are Available Yet',
-                          style: TextStyle(
-                            fontFamily: 'IrishGrover',
-                            fontSize: 22,
-                            color: Color.fromARGB(255, 227, 181, 193),
-                          ),
-                        ),
-                      ),
-                    ],
+                : 
+      //           Center( // Ensure the text is centered
+      //   child: Text(
+      //     'No Services Are Available Yet',
+      //     style: TextStyle(
+      //       fontFamily: 'IrishGrover',
+      //       fontSize: 22,
+      //       color: Color.fromARGB(255, 227, 181, 193),
+      //     ),
+      //   ),
+      // ),
+      Center(
+            child: Text(
+              'No Services Are Available Yet',
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    fontFamily: 'IrishGrover',
+                    fontSize: 22,
+                    color: const Color.fromARGB(255, 227, 181, 193),
                   ),
+            ),
+          )
           );
   }
 }

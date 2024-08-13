@@ -26,7 +26,7 @@ import '/screens/sign_up_screens/sign_up_screen2.dart';
 import '/screens/sign_up_screens/sign_up_screen3.dart';
 import '/screens/sign_up_screens/sign_up_screen4.dart';
 
-const String host = 'http://192.168.1.104:8000';
+const String host = 'http://192.168.1.102:8000';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
