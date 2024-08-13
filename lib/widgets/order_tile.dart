@@ -12,18 +12,22 @@ class OrderTile extends StatefulWidget {
       required this.orderedBy,
       required this.quantity,
       required this.dueDate,
-       this.isCustomized,
-       this.customDescription,
+      this.isCustomized,
+      this.customDescription,
       required this.totalPrice,
-      required this.url});
+      required this.url,
+      required this.receivedDate,
+      this.orderId,
+      this.servieId});
   final String serviceName, orderedBy;
   final int quantity;
   int? fromProcessed;
-  final DateTime dueDate;
+  final DateTime dueDate, receivedDate;
   final int? isCustomized;
-   String? customDescription;
+  String? customDescription;
   final double totalPrice;
   final String url;
+  final int? orderId, servieId;
 
   @override
   State<OrderTile> createState() => _OrderTileState();
@@ -47,7 +51,7 @@ class _OrderTileState extends State<OrderTile> {
           // Navigator.push(
           // context,
           // MaterialPageRoute(builder: (ctx) => ServiceDetails(serviceId: serviceId))
-        
+
           // );
         },
         child: Padding(
@@ -59,8 +63,8 @@ class _OrderTileState extends State<OrderTile> {
                 borderRadius: BorderRadius.circular(20),
                 child: CachedNetworkImage(
                   imageUrl: widget.url,
-                  height: MediaQuery.of(context).size.width * 0.2545,
-                  width: MediaQuery.of(context).size.width * 0.2,
+                  height: MediaQuery.of(context).size.width * 0.32,
+                  width: MediaQuery.of(context).size.width * 0.26,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
                     color: const Color.fromARGB(255, 230, 230, 230),
@@ -112,6 +116,18 @@ class _OrderTileState extends State<OrderTile> {
                             fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
+                      Text(
+                        'Received:${widget.receivedDate.toLocal()}'
+                            .split(' ')[0],
+                        softWrap: false,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: primary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Text(
@@ -146,35 +162,52 @@ class _OrderTileState extends State<OrderTile> {
                                     ? CircularProgressIndicator()
                                     : TextButton(
                                         onPressed: () async {
+                                          if (!mounted) return;
                                           setState(() {
                                             _isLoading = true;
                                           });
                                           try {
                                             await Provider.of<Orders>(context,
                                                     listen: false)
-                                                .acceptService();
+                                                .acceptService(
+                                                    widget.orderId!,
+                                                    widget.servieId!,
+                                                    widget.isCustomized);
+                                            if (!mounted)
+                                              return; // Check again after the async operation
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
-                                               SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 76, 27, 75),
-                                  content: Text(
-                                    'Accepted successfully',
-                                    style: TextStyle(
-                                      color: beige,
-                                    ),
-                                  ),
-                                  duration: const Duration(seconds: 1),
-                                ),
+                                              SnackBar(
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 76, 27, 75),
+                                                content: Text(
+                                                  'Accepted successfully',
+                                                  style: TextStyle(
+                                                    color: beige,
+                                                  ),
+                                                ),
+                                                duration:
+                                                    const Duration(seconds: 1),
+                                              ),
                                             );
                                           } finally {
+                                            if (!mounted) return;
                                             setState(() {
                                               _isLoading = false;
                                             });
+                                            Provider.of<Orders>(context,
+                                                    listen: false)
+                                                .fetchPendingOrders();
+                                            Provider.of<Orders>(context,
+                                                    listen: false)
+                                                .fetchProcessedOrders();
                                           }
                                         },
                                         child: Text(
@@ -198,24 +231,31 @@ class _OrderTileState extends State<OrderTile> {
                                           try {
                                             await Provider.of<Orders>(context,
                                                     listen: false)
-                                                .rejectService();
+                                                .rejectService(
+                                                    widget.orderId!,
+                                                    widget.servieId!,
+                                                    widget.isCustomized);
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
-                                             SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 76, 27, 75),
-                                  content: Text(
-                                    'Rejected successfully',
-                                    style: TextStyle(
-                                      color: beige,
-                                    ),
-                                  ),
-                                  duration: const Duration(seconds: 1),
-                                ),
+                                              SnackBar(
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 76, 27, 75),
+                                                content: Text(
+                                                  'Rejected successfully',
+                                                  style: TextStyle(
+                                                    color: beige,
+                                                  ),
+                                                ),
+                                                duration:
+                                                    const Duration(seconds: 1),
+                                              ),
                                             );
                                           } finally {
                                             setState(() {

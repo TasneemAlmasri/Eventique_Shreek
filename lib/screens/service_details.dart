@@ -162,6 +162,29 @@ class _ServiceDetailsState extends State<ServiceDetails>
                                                   listen: false)
                                               .deleteService(widget.serviceId);
                                           Navigator.of(context).pop();
+                                          Navigator.of(context).pop();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                      255, 76, 27, 75),
+                                              content: Text(
+                                                'deleted successfully',
+                                                style: TextStyle(
+                                                  color: beige,
+                                                ),
+                                              ),
+                                              duration:
+                                                  const Duration(seconds: 1),
+                                            ),
+                                          );
                                         },
                                       ),
                                     ],

@@ -26,10 +26,12 @@ class AllServices with ChangeNotifier {
 
   Future<void> deleteService(serviceId) async {
     await _servicesService.deleteService(token, serviceId);
+    fetchAllServices();
   }
 
   Future<void> editActivation(isVisible, serviceId) async {
     await _servicesService.editActivation(isVisible, token, serviceId);
+    fetchAllServices();
   }
 
   OneService findById(int id) {
@@ -202,6 +204,50 @@ class ServicesService {
       throw error;
     }
   }
+
+  //  Future<void> editService(
+  //   List<String> imagesPicked,
+  //   String serviceName,
+  //   double servicePrice,
+  //   int selectedCatId,
+  //   String description,
+  //   bool selectInPackages,
+  //   int serviceId
+  //  ) async {
+
+  //   final url = Uri.parse('$host/api/services/1/$serviceId');
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {
+  //         'Accept': 'application/json',
+  //         // 'Authorization': 'Bearer $token',
+  //         'locale': 'en',
+  //       },
+  //       body: {
+  //         'price':
+  //         '':
+  //         '':
+  //         '':
+  //         '':
+  //         '':
+
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //        print('I am in editActivationnnnnnn ');
+  //     }
+  //     else {
+  //       print(response.body);
+  //       print('faild in editActivation');
+  //     throw Exception('Failed to editActivation');
+  //   }
+  //   } catch (error) {
+  //     print(error);
+  //     throw error;
+  //   }
+  // }
 }
 
 class SearchService {

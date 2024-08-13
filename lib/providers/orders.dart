@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import '/color.dart';
 import '/main.dart';
 import '/models/service_in_order_details.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +7,10 @@ import 'package:http/http.dart' as http;
 class Orders with ChangeNotifier {
   final String token;
   final int companyId;
-  Orders(this.token,this.companyId) {}
+  Orders(this.token,this.companyId) {
+    fetchPendingOrders();
+    fetchProcessedOrders();
+  }
 
   final OrdersService _ordersService = OrdersService();
 
@@ -22,7 +23,7 @@ class Orders with ChangeNotifier {
   List<ServiceInOrderDetails> get proccecdOrders => [..._processdOrders];
 
   Future<void> fetchPendingOrders() async {
-    final fetchedOrders = await _ordersService.fetchPendingOrders(token);
+    final fetchedOrders = await _ordersService.fetchPendingOrders(token,companyId);
     _pendingOrders = fetchedOrders;
     notifyListeners();
   }
@@ -33,124 +34,242 @@ class Orders with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> acceptService() async {
-    _ordersService.acceptService(token);
+  Future<void> acceptService(int orderID,int serviceID,int? isCustomized) async {
+    _ordersService.acceptService(token,orderID,serviceID,isCustomized);
+     await fetchPendingOrders();
+    await fetchProcessedOrders();
+    notifyListeners();
   }
 
-  Future<void> rejectService() async {
-    _ordersService.rejectService(token);
+  Future<void> rejectService(int orderID,int serviceID,int? isCustomized) async {
+    _ordersService.rejectService(token,orderID,serviceID,isCustomized);
+     await fetchPendingOrders();
+    await fetchProcessedOrders();
+    notifyListeners();
   }
 }
 
 //..............http.......................
 class OrdersService {
-  Future<List<ServiceInOrderDetails>> fetchPendingOrders(String token) async {
-    final String apiUrl = '$host/api/events';
-    print('I am in fetchPendingOrderssssssss ');
 
-    final response = await http.get(
-      Uri.parse(apiUrl),
-      headers: {
-        'Accept': 'application/json',
-        'locale': 'ar',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    if (response.statusCode == 200) {
-      print('Successfully fetched pending orders');
-      final data = jsonDecode(response.body);
-      final events = data['data'] as List;
-      return events.map((e) {
-        final date = DateTime.parse(e['date']);
-        return ServiceInOrderDetails(
-          name: e['name'],
-          imgUrl: e['id'],
-          orederdBy: e['id'],
-          arrivDate: e['id'],
-          dueDate: date,
-          quantity: e['id'],
-          totalPrice: e['price'],
-          // isCustomized:1, just in custom
-          // customDescription: e['??????????????'],
-          status: e['id'], //depends on the route
-        );
-      }).toList();
-    } else {
-      print(response.body);
-      throw Exception('Failed showEventttttttt');
-    }
+Future<List<ServiceInOrderDetails>> fetchPendingOrders(String token, int companyId) async {
+  final String apiUrl = '$host/api/company/$companyId/pending-services';
+  print('I am in fetchPendingOrders');
+
+  final response = await http.get(
+    Uri.parse(apiUrl),
+    headers: {
+      'Accept': 'application/json',
+      'locale': 'en',
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    print('I am in fetchPendingOrder 200');
+    print(response.body);
+    final data = jsonDecode(response.body);
+    final services = data['services'] as List;
+    final customizedServices = data['customized_services'] as List;
+
+    List<ServiceInOrderDetails> result = [];
+
+    // Process regular services
+    result.addAll(services.map((e) {
+      final orderDate = e['order_date'];
+      final eventDate = e['event_date'];
+
+      final date = DateTime.parse(orderDate);
+      final dueDate = DateTime.parse(eventDate);
+      final imgUrl = e['service_images'].isNotEmpty ? e['service_images'][0]['url'] : '';
+
+      return ServiceInOrderDetails(
+        name: e['service_name'].toString(),
+        imgUrl: imgUrl,
+        orederdBy: e['user_name'],
+        orderId: e['order_id'],
+        serviceId: e['service_id'],
+        quantity: e['quantity'],
+        totalPrice: double.parse(e['price'].toString()), // Ensure correct parsing
+        dueDate: dueDate,
+        arrivDate: date,
+        status: 'pending',
+      );
+    }).toList());
+
+    // Process customized services
+    result.addAll(customizedServices.map((e) {
+      final orderDate = e['order_date'];
+      final eventDate = e['event_date'];
+
+      final date = DateTime.parse(orderDate);
+      final dueDate = DateTime.parse(eventDate);
+      final imgUrl = e['service_images'].isNotEmpty ? e['service_images'][0]['url'] : '';
+
+      return ServiceInOrderDetails(
+        name: e['service_name'].toString(),
+        imgUrl: imgUrl,
+        orederdBy: e['user_name'],
+        orderId: e['order_id'],
+        serviceId: e['customized_service_id'],
+        quantity: 1, 
+        totalPrice: double.parse(e['price'].toString()), // Ensure correct parsing
+        dueDate: dueDate,
+        arrivDate: date,
+        status: 'pending',
+        isCustomized: 1,
+        customDescription: e['description'],
+      );
+    }).toList());
+     print('heeeeeeeeeeeeeere you neeeeeeeeeeeeed this:::::::::::::::::::::::${response.body}');
+    return result;
+  } else {
+    print(response.body);
+    throw Exception('Failed to fetch orders');
+  }
+}
+
+
+
+  Future<List<ServiceInOrderDetails>> fetchProcessedOrders(String token, int companyId) async {
+  final String apiUrl = '$host/api/company/$companyId/processed-services';
+  print('I am in fetchProcessedOrders');
+
+  final response = await http.get(
+    Uri.parse(apiUrl),
+    headers: {
+      'Accept': 'application/json',
+      'locale': 'en',
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    print('i am in fetched fetchProcessedOrders 200');
+    final data = jsonDecode(response.body);
+    final services = data['services'] as List;
+    final customizedServices = data['customized_services'] as List;
+    print('serv is $services');
+    print('custom is $customizedServices');
+
+    List<ServiceInOrderDetails> result = [];
+
+    // Process regular services
+    result.addAll(services.map((e) {
+      final orderDate = e['order_date'];
+      final eventDate = e['event_date'];
+
+      final date = DateTime.parse(orderDate);
+      final dueDate = DateTime.parse(eventDate);
+      final imgUrl = e['service_images'].isNotEmpty ? e['service_images'][0]['url'] : '';
+      print('After image URL processing');
+
+      return ServiceInOrderDetails(
+        name: e['service_name'].toString(),
+        imgUrl: imgUrl,
+        orederdBy: e['user_name'],
+        quantity: e['quantity'],
+        totalPrice: double.parse(e['price'].toString()), // Ensure correct parsing
+        dueDate: dueDate,
+        arrivDate: date,
+        status: 'Processed',
+        
+      );
+    }).toList());
+print('now going to custoooooooooooooooooooooooom $customizedServices');
+    // Process customized services
+    result.addAll(customizedServices.map((e) {
+      final orderDate = e['order_date'];
+      final eventDate = e['event_date'];
+
+      final date = DateTime.parse(orderDate);
+      final dueDate = DateTime.parse(eventDate);
+      final imgUrl = e['service_images'].isNotEmpty ? e['service_images'][0]['url'] : '';
+
+      return ServiceInOrderDetails(
+        name: e['service_name'].toString(),
+        imgUrl: imgUrl,
+        orederdBy: e['user_name'].toString(),
+        quantity: 1, 
+        totalPrice: double.parse(e['price'].toString()), // Ensure correct parsing
+        dueDate: dueDate,
+        arrivDate: date,
+        status: 'Processed',
+        isCustomized: 1,
+        customDescription: e['description'].toString(),
+      );
+    }).toList());
+print('fetched processed goooooooooooooood');
+    return result;
+  }  else {
+    print(response.body);
+    throw Exception('Failed to fetch orders');
+  }
+}
+
+  void acceptService(String token, int orderID, int serviceID, int? isCustomized) async {
+    print('token $token orderID $orderID serviceID $serviceID isCustomized $isCustomized');
+  final String apiUrl = '$host/api/update_service_status';
+  print('I am in acceptService');
+  print('orderId $orderID and serviceId $serviceID');
+
+  // Create the base body map
+  Map<String, String> body = {
+    'order_id': orderID.toString(),
+    'status': 'ACCEPTED',
+  };
+
+  // Conditionally add 'service_id' or 'customized_service_id'
+  if (isCustomized == null) {
+    body['service_id'] = serviceID.toString();
+  } else {
+    body['customized_service_id'] = serviceID.toString();
   }
 
-  Future<List<ServiceInOrderDetails>> fetchProcessedOrders(String token,int companyId) async {
-    final String apiUrl = '$host/api/company/$companyId/notpending-services';
-    print('I am in fetchProcessedOrdersssssss ');
+  final response = await http.post(
+    Uri.parse(apiUrl),
+    headers: {
+      'Accept': 'application/json',
+      'locale': 'en',
+      'Authorization': 'Bearer $token',
+    },
+    body: body,
+  );
 
-    final response = await http.get(
-      Uri.parse(apiUrl),
-      headers: {
-        'Accept': 'application/json',
-        'locale': 'ar',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    if (response.statusCode == 200) {
-      print('Successfully fetched processed orders');
-      final data = jsonDecode(response.body);
-      final events = data['data'] as List;
-      return events.map((e) {
-        final date = DateTime.parse(e['date']);
-        return ServiceInOrderDetails(
-          name: e['name'],
-          imgUrl: e['id'],
-          orederdBy: e['id'],
-          arrivDate: e['id'],
-          dueDate: date,
-          quantity: e['id'],
-          totalPrice: e['price'],
-          
-          // isCustomized:1, just in custom
-          // customDescription: e['??????????????'],
-          status: e['id'], //depends on the route
-          
-        );
-      }).toList();
-    } else {
-      print(response.body);
-      throw Exception('Failed');
-    }
+  if (response.statusCode == 200) {
+    print('Successfully accepted service');
+  } else {
+    print(response.body);
+    throw Exception('Failed to accept service');
   }
+}
 
-   void acceptService(String token) async {
-    final String apiUrl = '$host/api/events';
-    print('I am in acceptService ');
 
-    final response = await http.get(
-      Uri.parse(apiUrl),
-      headers: {
-        'Accept': 'application/json',
-        'locale': 'ar',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    if (response.statusCode == 200) {
-      print('Successfully acceptService');
-     }else {
-      print(response.body);
-      throw Exception('Failed');
-    }
-  }
-
-  void rejectService(String token) async {
-    final String apiUrl = '$host/api/events';
+  void rejectService(String token,int orderID,int serviceID,int? isCustomized) async {
+    final String apiUrl = '$host/api/update_service_status';
     print('I am in rejectService ');
 
-    final response = await http.get(
+    // Create the base body map
+  Map<String, String> body = {
+    'order_id': orderID.toString(),
+    'status': 'ACCEPTED',
+  };
+
+  // Conditionally add 'service_id' or 'customized_service_id'
+  if (isCustomized == null) {
+    body['service_id'] = serviceID.toString();
+  } else {
+    body['customized_service_id'] = serviceID.toString();
+  }
+
+    final response = await http.post(
       Uri.parse(apiUrl),
       headers: {
         'Accept': 'application/json',
-        'locale': 'ar',
+        'locale': 'en',
         'Authorization': 'Bearer $token',
       },
+      body: body
     );
     if (response.statusCode == 200) {
       print('Successfully rejectService');
