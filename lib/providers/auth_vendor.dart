@@ -170,7 +170,7 @@ class AuthVendor with ChangeNotifier {
         _userData['email'],
         _userData['image'],
       );
-      // await authenticateUserWithCustomToken(_firebaseToken);
+      await authenticateUserWithCustomToken(_firebaseToken);
       notifyListeners();
     } catch (error) {
       print(error);
@@ -244,7 +244,7 @@ class AuthVendor with ChangeNotifier {
         userEmail: _userData['email'],
         userImage: _userData['image'],
       );
-      // await authenticateUserWithCustomToken(_firebaseToken);
+      await authenticateUserWithCustomToken(_firebaseToken);
       notifyListeners();
     } catch (error) {
       print(error.toString());
