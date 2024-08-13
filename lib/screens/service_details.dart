@@ -33,7 +33,8 @@ class _ServiceDetailsState extends State<ServiceDetails>
 
   Future<void> _loadData() async {
     try {
-      await Provider.of<ServiceProvider>(context, listen: false).getCategories();
+      await Provider.of<ServiceProvider>(context, listen: false)
+          .getCategories();
       setState(() {
         _isLoading = false;
       });
@@ -74,7 +75,8 @@ class _ServiceDetailsState extends State<ServiceDetails>
       );
     }
 
-    final loadedService = Provider.of<AllServices>(context, listen: false).findById(widget.serviceId);
+    final loadedService = Provider.of<AllServices>(context, listen: false)
+        .findById(widget.serviceId);
     final _servicesCategory =
         Provider.of<ServiceProvider>(context).allCategories;
 
@@ -87,7 +89,8 @@ class _ServiceDetailsState extends State<ServiceDetails>
               useMaterial3: false, // Disable Material 3 for NestedScrollView
             ),
             child: NestedScrollView(
-              headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
                 return <Widget>[
                   Theme(
                     data: Theme.of(context).copyWith(
@@ -106,17 +109,24 @@ class _ServiceDetailsState extends State<ServiceDetails>
                                   context,
                                   MaterialPageRoute(
                                     builder: ((context) => EditService(
-                                      description: loadedService.description!,
-                                      imagesPicked: [],
-                                      selectInPackages: loadedService.isDiscountedPackages!,
-                                      selectedCat: loadedService.categoryId!,
-                                      serviceName: loadedService.name!,
-                                      servicePrice: loadedService.price!,
-                                    )),
+                                          serviceId: loadedService.serviceId!,
+                                          description:
+                                              loadedService.description!,
+                                          imagesPicked: [],
+                                          selectInPackages: loadedService
+                                              .isDiscountedPackages!,
+                                          selectedCat:
+                                              loadedService.categoryId!,
+                                          serviceName: loadedService.name!,
+                                          servicePrice: loadedService.price!,
+                                          existingImageUrls:
+                                              loadedService.imgsUrl!,
+                                        )),
                                   ),
                                 );
                               },
-                              child: const Text('Edit', style: TextStyle(color: primary)),
+                              child: const Text('Edit',
+                                  style: TextStyle(color: primary)),
                             ),
                             PopupMenuItem(
                               onTap: () async {
@@ -133,11 +143,10 @@ class _ServiceDetailsState extends State<ServiceDetails>
                                     ),
                                     actions: <Widget>[
                                       TextButton(
-                                        child: const Text(
-                                          'No',
-                                          style: TextStyle(
-                                              color: primary,
-                                              fontWeight: FontWeight.w500)),
+                                        child: const Text('No',
+                                            style: TextStyle(
+                                                color: primary,
+                                                fontWeight: FontWeight.w500)),
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
@@ -145,11 +154,13 @@ class _ServiceDetailsState extends State<ServiceDetails>
                                       TextButton(
                                         child: const Text('Yes',
                                             style: TextStyle(
-                                                color: primary,
-                                                fontWeight: FontWeight.w500,
-                                                )),
+                                              color: primary,
+                                              fontWeight: FontWeight.w500,
+                                            )),
                                         onPressed: () {
-                                          Provider.of<AllServices>(context, listen: false).deleteService(widget.serviceId);
+                                          Provider.of<AllServices>(context,
+                                                  listen: false)
+                                              .deleteService(widget.serviceId);
                                           Navigator.of(context).pop();
                                         },
                                       ),
@@ -157,7 +168,8 @@ class _ServiceDetailsState extends State<ServiceDetails>
                                   ),
                                 );
                               },
-                              child: const Text('Delete', style: TextStyle(color: primary)),
+                              child: const Text('Delete',
+                                  style: TextStyle(color: primary)),
                             ),
                           ],
                         )
@@ -194,7 +206,8 @@ class _ServiceDetailsState extends State<ServiceDetails>
                     ),
                   ),
                   SliverToBoxAdapter(
-                    child: ImageSliderScreen(imgList: loadedService.imgsUrl ?? []),
+                    child:
+                        ImageSliderScreen(imgList: loadedService.imgsUrl ?? []),
                   ),
                   MyTabBar(tabController: _tabController),
                 ];
@@ -204,7 +217,10 @@ class _ServiceDetailsState extends State<ServiceDetails>
                 serviceId: widget.serviceId,
                 description: loadedService.description!,
                 price: loadedService.price!,
-                category: _servicesCategory.firstWhere((element) => element.id == loadedService.categoryId).category,
+                category: _servicesCategory
+                    .firstWhere(
+                        (element) => element.id == loadedService.categoryId)
+                    .category,
                 isDiscounted: loadedService.isDiscountedPackages!,
                 isVisisble: loadedService.isActivated!,
               ),

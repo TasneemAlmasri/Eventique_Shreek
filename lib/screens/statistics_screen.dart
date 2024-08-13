@@ -30,36 +30,48 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     'NOV',
     'DEC'
   ];
-  List years = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
+  List years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
   bool _isLoading = false;
   bool _todaySelection = true;
   bool _monthSelection = false;
   bool _yearSelection = false;
-
   Future<void> fetchStatistics() async {
     try {
       setState(() {
         _isLoading = true;
       });
 
-      DateTime dateToFetch;
+      String dateToFetch;
       if (_todaySelection) {
-        dateToFetch = selectedDate;
+        // Format the date as 'YYYY-MM-DD'
+        dateToFetch =
+            "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
         print(dateToFetch);
+        await Provider.of<StatisticsProvider>(context, listen: false)
+            .getStatistics('DailyStatistics', dateToFetch);
       } else if (_monthSelection && selectedMonth != null) {
         int year = selectedYear ?? DateTime.now().year;
-        dateToFetch = DateTime(year, selectedMonth! + 1);
+        // Format the date as 'YYYY-MM'
+        dateToFetch =
+            "$year-${(selectedMonth! + 1).toString().padLeft(2, '0')}";
         print(dateToFetch);
+        await Provider.of<StatisticsProvider>(context, listen: false)
+            .getStatistics('MonthlyStatistics', dateToFetch);
       } else if (_yearSelection && selectedYear != null) {
-        dateToFetch = DateTime(selectedYear!);
+        // Format the date as 'YYYY'
+        dateToFetch = "$selectedYear";
         print(dateToFetch);
+        await Provider.of<StatisticsProvider>(context, listen: false)
+            .getStatistics('YearlyStatistics', dateToFetch);
       } else {
-        // Default to current date if nothing is selected
-        dateToFetch = DateTime.now();
+        // Default to current date if nothing is selected, formatted as 'YYYY-MM-DD'
+        DateTime now = DateTime.now();
+        dateToFetch =
+            "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+        await Provider.of<StatisticsProvider>(context, listen: false)
+            .getStatistics('MonthlyStatistics', dateToFetch);
       }
 
-      await Provider.of<StatisticsProvider>(context, listen: false)
-          .getStatistics(dateToFetch);
       setState(() {
         _isLoading = false;
       });

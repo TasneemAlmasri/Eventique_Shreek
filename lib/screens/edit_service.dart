@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:eventique_company_app/providers/services_list.dart';
 import 'package:eventique_company_app/providers/services_provider.dart';
 import 'package:eventique_company_app/widgets/pickers/multiple_image_picker.dart';
 import 'package:provider/provider.dart';
@@ -8,14 +9,24 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 class EditService extends StatefulWidget {
   const EditService({
-    super.key, required this.imagesPicked, required this.serviceName, required this.servicePrice, required this.selectedCat, required this.description, required this.selectInPackages,
-    });
-  final  List<File> imagesPicked;
-  final  String serviceName;
-  final  double servicePrice;
-  final  int selectedCat;
-  final  String description;
-  final  bool selectInPackages;
+    super.key,
+    required this.imagesPicked,
+    required this.existingImageUrls,
+    required this.serviceName,
+    required this.servicePrice,
+    required this.selectedCat,
+    required this.description,
+    required this.selectInPackages,
+    required this.serviceId,
+  });
+  final List<File> imagesPicked;
+  final List<String> existingImageUrls;
+  final String serviceName;
+  final double servicePrice;
+  final int selectedCat;
+  final String description;
+  final bool selectInPackages;
+  final int serviceId;
 
   @override
   State<EditService> createState() => _EditServiceState();
@@ -25,7 +36,9 @@ class _EditServiceState extends State<EditService> {
   bool _isLoading = false;
 
   Future<List<String>> _uploadImages(List<File> selectedImages) async {
-    if (selectedImages.length < 3) {
+    print(widget.existingImageUrls.length);
+    // Check if the total number of images is at least 3
+    if ((selectedImages.length + widget.existingImageUrls.length) < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select at least three images')),
       );
@@ -58,8 +71,9 @@ class _EditServiceState extends State<EditService> {
     }
   }
 
-  Future<void> _addService(
+  Future<void> _editService(
     List<File> imagesPicked,
+    List<String> existingImageUrls,
     String serviceName,
     double servicePrice,
     int selectedCat,
@@ -71,15 +85,16 @@ class _EditServiceState extends State<EditService> {
       setState(() {
         _isLoading = true;
       });
-      List<String> imagesUrl = await _uploadImages(imagesPicked);
-      print(imagesUrl);
-      await Provider.of<ServiceProvider>(context).addNewService(
-          imagesUrl,
+      List<String> newImagesUrl = await _uploadImages(imagesPicked);
+      List<String> allImageUrls = [...existingImageUrls, ...newImagesUrl];
+      await Provider.of<AllServices>(context, listen: false).editService(
+          allImageUrls,
           serviceName,
           servicePrice,
           selectedCat,
           description,
-          selectInPackages);
+          selectInPackages,
+          widget.serviceId);
       setState(() {
         _isLoading = false;
       });
@@ -123,22 +138,32 @@ class _EditServiceState extends State<EditService> {
           ),
         ),
         body: AddServiceForm(
-          _addService, _isLoading,
-          description:widget.description ,
+          _editService,
+          _isLoading,
+          description: widget.description,
           imagesPicked: widget.imagesPicked,
+          existingImageUrls: widget.existingImageUrls,
           selectInPackages: widget.selectInPackages,
-          selectedCat:widget.selectedCat ,
-          serviceName:widget.serviceName ,
+          selectedCat: widget.selectedCat,
+          serviceName: widget.serviceName,
           servicePrice: widget.servicePrice,
-          ));
+        ));
   }
 }
 
-
 class AddServiceForm extends StatefulWidget {
-  const AddServiceForm(this.submitFn, this.isLoading, {super.key, required this.imagesPicked, required this.serviceName, required this.servicePrice, required this.selectedCat, required this.description, required this.selectInPackages});
+  const AddServiceForm(this.submitFn, this.isLoading,
+      {super.key,
+      required this.imagesPicked,
+      this.existingImageUrls,
+      required this.serviceName,
+      required this.servicePrice,
+      required this.selectedCat,
+      required this.description,
+      required this.selectInPackages});
 
   final List<File> imagesPicked;
+  final List<String>? existingImageUrls;
   final String serviceName;
   final double servicePrice;
   final int selectedCat;
@@ -148,6 +173,7 @@ class AddServiceForm extends StatefulWidget {
   final bool isLoading;
   final void Function(
     List<File> imagesPicked,
+    List<String> existingImageUrls,
     String serviceName,
     double servicePrice,
     int selectedCat,
@@ -170,15 +196,18 @@ class _AddServiceFormState extends State<AddServiceForm> {
   int _selectedCategory = 0;
   bool _selectInPackages = false;
   List<File> _selectedImages = [];
+  List<String> _existingImageUrls = [];
 
   @override
   void initState() {
     _serviceNameController = TextEditingController(text: widget.serviceName);
-    _servicePriceController = TextEditingController(text: widget.servicePrice.toString());
+    _servicePriceController =
+        TextEditingController(text: widget.servicePrice.toString());
     _descriptionController = TextEditingController(text: widget.description);
     _selectedCategory = widget.selectedCat;
     _selectInPackages = widget.selectInPackages;
     _selectedImages = widget.imagesPicked;
+    _existingImageUrls = widget.existingImageUrls ?? [];
     super.initState();
     fetchAllCategories();
   }
@@ -197,12 +226,19 @@ class _AddServiceFormState extends State<AddServiceForm> {
     });
   }
 
+  void _onRemoveExistingImage(int index) {
+    setState(() {
+      _existingImageUrls.removeAt(index);
+    });
+  }
+
   Future<void> fetchAllCategories() async {
     try {
       setState(() {
         _loadingCat = true;
       });
-      await Provider.of<ServiceProvider>(context, listen: false).getCategories();
+      await Provider.of<ServiceProvider>(context, listen: false)
+          .getCategories();
       setState(() {
         _loadingCat = false;
       });
@@ -217,7 +253,8 @@ class _AddServiceFormState extends State<AddServiceForm> {
   void _trySubmit() {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    if (_selectedImages.length < 3) {
+    // Check if the total number of images (selected + existing) is at least 3
+    if ((_selectedImages.length + _existingImageUrls.length) < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please upload at least three images')),
       );
@@ -227,6 +264,7 @@ class _AddServiceFormState extends State<AddServiceForm> {
       _formKey.currentState!.save();
       widget.submitFn(
         _selectedImages,
+        _existingImageUrls,
         _serviceNameController.text.trim(),
         double.parse(_servicePriceController.text),
         _selectedCategory,
@@ -245,14 +283,21 @@ class _AddServiceFormState extends State<AddServiceForm> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final _servicesCategory = Provider.of<ServiceProvider>(context).allCategories;
+    final _servicesCategory =
+        Provider.of<ServiceProvider>(context).allCategories;
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(height: size.height * 0.02),
-            MultiImagePicker(onImagesPicked: _onImagesPicked),
+            MultiImagePicker(
+              onImagesPicked: _onImagesPicked,
+              existingImageUrls:
+                  _existingImageUrls.isNotEmpty ? _existingImageUrls : null,
+              onRemoveExistingImage:
+                  _existingImageUrls.isNotEmpty ? _onRemoveExistingImage : null,
+            ),
             SizedBox(height: size.height * 0.02),
             SizedBox(
               width: size.width * 0.9,
@@ -260,7 +305,7 @@ class _AddServiceFormState extends State<AddServiceForm> {
                 controller: _serviceNameController,
                 key: const ValueKey('serviceName'),
                 validator: (value) {
-                  if (value!.isEmpty||value.trim().isEmpty) {
+                  if (value!.isEmpty || value.trim().isEmpty) {
                     return 'Please enter a service name';
                   }
                   return null;
@@ -284,7 +329,8 @@ class _AddServiceFormState extends State<AddServiceForm> {
                   ),
                 ),
                 cursorColor: Colors.grey,
-                style: const TextStyle(color: primary,fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: primary, fontWeight: FontWeight.bold),
                 onSaved: (value) {
                   _serviceNameController.text = value!;
                 },
@@ -323,12 +369,14 @@ class _AddServiceFormState extends State<AddServiceForm> {
                         if (value == null || value.trim().isEmpty) {
                           return 'Please enter a price';
                         }
-                        if (double.tryParse(value) == null||double.tryParse(value)!<=0) {
+                        if (double.tryParse(value) == null ||
+                            double.tryParse(value)! <= 0) {
                           return 'Please enter a valid number';
                         }
                         return null;
                       },
-                      style: const TextStyle(color: primary,fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: primary, fontWeight: FontWeight.bold),
                       onSaved: (value) {
                         _servicePriceController.text = value!;
                       },
@@ -410,7 +458,8 @@ class _AddServiceFormState extends State<AddServiceForm> {
                     color: secondary,
                   ),
                 ),
-                style: const TextStyle(color: primary,fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: primary, fontWeight: FontWeight.bold),
                 onSaved: (value) {
                   _descriptionController.text = value!;
                 },
@@ -501,4 +550,3 @@ class _AddServiceFormState extends State<AddServiceForm> {
     );
   }
 }
-

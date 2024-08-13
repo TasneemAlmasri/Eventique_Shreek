@@ -1,6 +1,10 @@
+import 'package:eventique_company_app/models/one_service.dart';
+import 'package:eventique_company_app/providers/services_list.dart';
+import 'package:eventique_company_app/widgets/search_tile.dart';
+
 import '/color.dart';
-import '/widgets/search_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SearchResultsScreen extends StatefulWidget {
   const SearchResultsScreen({super.key});
@@ -11,23 +15,34 @@ class SearchResultsScreen extends StatefulWidget {
 
 class _SearchResultsScreenState extends State<SearchResultsScreen> {
   final TextEditingController _controller = TextEditingController();
-  List<String> _searchResults = [];
-  final List<String> _items = [
-    'Dream Cake',
-    'Salad',
-    'Royal Hall',
-    'Batata',
-    'Bandora',
-    'Red Roses',
-    'Taboleh',
-    'Lala Photography'
-  ];
+  List<OneService> _searchResults = [];
+  bool _isLoading = false; // Add loading state
 
   void _onSearchChanged(String text) {
+    if (text.isEmpty) {
+      setState(() {
+        _searchResults = [];
+      });
+      return;
+    }
+
     setState(() {
-      _searchResults = _items
-          .where((item) => item.toLowerCase().contains(text.toLowerCase()))
-          .toList();
+      _isLoading = true; // Set loading to true before fetching data
+    });
+
+    Provider.of<AllServices>(context, listen: false)
+        .getSearchInAll(text.toLowerCase())
+        .then((searchResults) {
+      setState(() {
+        _searchResults = searchResults;
+        _isLoading = false; // Set loading to false after fetching data
+      });
+    }).catchError((error) {
+      print("Error fetching search results: $error");
+      setState(() {
+        _searchResults = [];
+        _isLoading = false; // Set loading to false on error
+      });
     });
   }
 
@@ -42,7 +57,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     var mediaq = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: beige,
       appBar: AppBar(
+        backgroundColor: beige,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: primary),
           onPressed: () => Navigator.of(context).pop(),
@@ -56,8 +73,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               _onSearchChanged(text);
             },
             decoration: InputDecoration(
-              constraints:
-                  BoxConstraints(maxWidth: mediaq.width * 0.87, maxHeight: 45),
+              constraints: BoxConstraints(maxWidth: mediaq.width * 0.87, maxHeight: 45),
               hintText: 'Search...',
               hintStyle: const TextStyle(
                 fontFamily: 'IrishGrover',
@@ -70,8 +86,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide:
-                    const BorderSide(color: Color.fromARGB(255, 226, 147, 168)),
+                borderSide: const BorderSide(color: Color.fromARGB(255, 226, 147, 168)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -83,20 +98,23 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         ),
       ),
       body: _controller.text.isEmpty
-          ? Container() // Blank page
-          : ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              itemCount: _searchResults.length,
-              itemBuilder: (context, index) {
-                return SearchTile(
-                  serviceName: _searchResults[index],
-                  serviceUrl:
-                      'https://i.postimg.cc/jSD6s14x/photo-2024-04-25-23-30-29.jpg',
-                  serviceId: 1,
-                  serviceCompany: 'Bee',
-                );
-              },
-            ),
+          ? Container() // Blank page when text is empty
+          : _isLoading
+              ? Center(child: CircularProgressIndicator()) // Show loading indicator
+              : ListView.builder(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  itemCount: _searchResults.length,
+                  itemBuilder: (context, index) {
+                    return SearchTile(
+                      serviceName: _searchResults[index].name!,
+                      serviceUrl: _searchResults[index].imgsUrl!.isNotEmpty
+                          ? _searchResults[index].imgsUrl![0]
+                          : '', // Update with appropriate image URL handling
+                      serviceId: _searchResults[index].serviceId,
+                      serviceCompany: _searchResults[index].vendorName??'',
+                    );
+                  },
+                ),
     );
   }
 }

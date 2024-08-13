@@ -20,16 +20,19 @@ class StatisticsProvider with ChangeNotifier {
     return {..._statistics};
   }
 
-  Future<void> getStatistics(DateTime date) async {
-    final url = Uri.parse('$host/api/companies/update');
+  Future<void> getStatistics(String route, String date) async {
+    final url = Uri.parse('$host/api/company/statistics/$route');
     print(url);
+    print(date);
     try {
-      final response = await http.get(
+      final response = await http.post(
         url,
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
-          'locale': 'en'
+        },
+        body: {
+          'date': date,
         },
       );
 
@@ -38,7 +41,12 @@ class StatisticsProvider with ChangeNotifier {
       if (responseData['Status'] == 'Failed') {
         throw Exception(responseData['Error']);
       }
-
+      _statistics['customers'] = responseData['user_count'].toString();
+      _statistics['services'] = responseData['service_count'].toString();
+      _statistics['revenue'] = responseData['total_profit'].toString();
+      _statistics['rating'] = responseData['avg_rating'] == null
+          ? 'No rating'
+          : responseData['avg_rating'].toString();
       notifyListeners();
     } catch (error) {
       print(error.toString());

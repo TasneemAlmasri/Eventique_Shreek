@@ -3,7 +3,6 @@ import 'package:eventique_company_app/models/one_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
 class AllServices with ChangeNotifier {
   final int companyId;
@@ -29,9 +28,9 @@ class AllServices with ChangeNotifier {
     await _servicesService.deleteService(token, serviceId);
   }
 
-   Future<void> editActivation(isVisible,serviceId) async{
+  Future<void> editActivation(isVisible, serviceId) async {
     await _servicesService.editActivation(isVisible, token, serviceId);
-   }
+  }
 
   OneService findById(int id) {
     return _allServices.firstWhere((element) => element.serviceId == id);
@@ -40,7 +39,7 @@ class AllServices with ChangeNotifier {
 // below we are handling the search
   //  List<OneService> searchResults=[];
   Future<List<OneService>> getSearchInAll(String text) async {
-    final fetchAllServices = await _searchService.getSearchInAll(text);
+    final fetchAllServices = await _searchService.getSearchInAll(text, token);
     return fetchAllServices;
   }
 
@@ -52,6 +51,46 @@ class AllServices with ChangeNotifier {
     _indexForBotomContent = newIndex;
     notifyListeners();
   }
+
+  //taghreed
+  Future<void> editService(
+      List<String> imagesPicked,
+      String serviceName,
+      double servicePrice,
+      int selectedCatId,
+      String description,
+      bool selectInPackages,
+      int serviceId) async {
+    final url = Uri.parse('$host/api/services/$serviceId');
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'locale': 'en',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'price': servicePrice,
+          'category_id': selectedCatId,
+          'name': serviceName,
+          'description': description,
+          'images': imagesPicked,
+          'discounted_packages': selectInPackages,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('I am in edit service ');
+      } else {
+        print(response.body);
+      }
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+  }
 }
 
 //.........................http................................................
@@ -62,7 +101,7 @@ class ServicesService {
 
   Future<List<OneService>> fetchAllServices(int companyId) async {
     print('companyIddddddddddddddddddd $companyId');
-    final String apiUrl1 = '$host/api/companies/4/services';
+    final String apiUrl1 = '$host/api/companies/$companyId/services';
     final response = await http.get(
       Uri.parse(apiUrl1),
       headers: {
@@ -106,9 +145,11 @@ class ServicesService {
   }
 
   //..................................
-  Future<void> editActivation(bool isVisible, String token,int serviceId) async {
-    int activation=isVisible==true? 1:0;
+  Future<void> editActivation(
+      bool isVisible, String token, int serviceId) async {
+    int activation = isVisible == true ? 0 : 1;
     print('tooooooken $token so what');
+    print('serviceIdddddd $serviceId ');
     final url = Uri.parse('$host/api/services/$serviceId/update-activation');
     try {
       final response = await http.post(
@@ -119,25 +160,24 @@ class ServicesService {
           'locale': 'en',
         },
         body: {
-          'activation':activation.toString(),
+          'activation': activation.toString(),
         },
       );
 
       if (response.statusCode == 200) {
-         print('I am in editActivationnnnnnn ');
-      }
-      else {
+        print('I am in editActivationnnnnnn 200 ');
+      } else {
         print(response.body);
         print('faild in editActivation');
-      throw Exception('Failed to editActivation');
-    }
+        throw Exception('Failed to editActivation');
+      }
     } catch (error) {
       print(error);
       throw error;
     }
   }
 
-   Future<void> deleteService(String token,int serviceId) async {
+  Future<void> deleteService(String token, int serviceId) async {
     print('tooooooken $token so what');
     final url = Uri.parse('$host/api/services/$serviceId/delete');
     try {
@@ -151,68 +191,23 @@ class ServicesService {
       );
 
       if (response.statusCode == 200) {
-         print('I am in deleteServiceeeeeeeeeeeee ');
-      }
-      else {
+        print('I am in deleteServiceeeeeeeeeeeee ');
+      } else {
         print(response.body);
         print('faild in deleteService');
-      throw Exception('Failed to deleteService');
-    }
+        throw Exception('Failed to deleteService');
+      }
     } catch (error) {
       print(error);
       throw error;
     }
   }
-
-  //  Future<void> editService(
-  //   List<String> imagesPicked,
-  //   String serviceName,
-  //   double servicePrice,
-  //   int selectedCat,
-  //   String description,
-  //   bool selectInPackages,
-  //   int serviceId
-  //  ) async {
-
-  //   final url = Uri.parse('$host/api/services/1/$serviceId');
-  //   try {
-  //     final response = await http.post(
-  //       url,
-  //       headers: {
-  //         'Accept': 'application/json',
-  //         // 'Authorization': 'Bearer $token',
-  //         'locale': 'en',
-  //       },
-  //       body: {
-  //         'price':
-  //         '':
-  //         '':
-  //         '':
-  //         '':
-  //         '':
-
-  //       },
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //        print('I am in editActivationnnnnnn ');
-  //     }
-  //     else {
-  //       print(response.body);
-  //       print('faild in editActivation');
-  //     throw Exception('Failed to editActivation');
-  //   }
-  //   } catch (error) {
-  //     print(error);
-  //     throw error;
-  //   }
-  // }
 }
 
 class SearchService {
-  final String apiUrl1 = '$host/api/search/all';
+  final String apiUrl1 = '$host/api/search_company';
 
-  Future<List<OneService>> getSearchInAll(String text) async {
+  Future<List<OneService>> getSearchInAll(String text, String token) async {
     print('I am in getSearchInAllllllllllllllll and going to get them');
 
     final response = await http.post(
@@ -220,6 +215,7 @@ class SearchService {
       headers: {
         'Accept': 'application/json',
         'locale': 'en', // or 'en' depending on your requirement
+        'Authorization': 'Bearer $token',
       },
       body: {'search_text': text},
     );
@@ -237,6 +233,8 @@ class SearchService {
               .map((img) => img['url'].toString())
               .toList();
         }
+        bool act = e['activation'] == 1 ? true : false;
+        bool discount = e['discounted_packages'] == 1 ? true : false;
 
         return OneService(
           serviceId: e['id'],
@@ -249,8 +247,8 @@ class SearchService {
           rating: e['average_rating'] != null
               ? double.parse(e['average_rating'].toString())
               : null, // Ensure rating is parsed as double
-          isActivated: e['activation'],
-          isDiscountedPackages: e['discounted_packages'],
+          isActivated: act,
+          isDiscountedPackages: discount,
         );
       }).toList();
     } else {
