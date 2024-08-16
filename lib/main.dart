@@ -31,7 +31,7 @@ import '/screens/sign_up_screens/sign_up_screen2.dart';
 import '/screens/sign_up_screens/sign_up_screen3.dart';
 import '/screens/sign_up_screens/sign_up_screen4.dart';
 
-const String host = 'http://192.168.1.107:8000';
+const String host = 'http://192.168.43.184:8000';
 
 // Create a global key for the navigator
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -179,7 +179,7 @@ class MyApp extends StatelessWidget {
           value: EventProvider(),
         ),
         ChangeNotifierProvider.value(
-          value: UsersProvider(),
+          value: UsersProvider(authProvider.token),
         ),
         ChangeNotifierProvider.value(
           value: Orders(authProvider.token, authProvider.userId),

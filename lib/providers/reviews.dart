@@ -42,7 +42,7 @@ class ReviewsService {
       Uri.parse(apiUrl),
       headers: {
         'Accept': 'application/json',
-        'locale': 'ar',
+        'locale': 'en',
         'Authorization': 'Bearer $token',
       },
     );
@@ -66,8 +66,6 @@ class ReviewsService {
     }
   }
 }
-
-
 
 class PdfService {
   Future<void> downloadPdf(String fileName, String token) async {
