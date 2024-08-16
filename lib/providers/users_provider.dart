@@ -1,30 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:eventique_company_app/models/user_model.dart';
-
-// class UsersProvider with ChangeNotifier {
-//   List<OneUser> users = [
-//     OneUser(
-//       id: 0,
-//       name: 'taghreed',
-//       email: 'taghreedswidah9@gmail.com',
-//       imageUrl: '',
-//     ),
-//     OneUser(
-//       id: 1,
-//       name: 'tasneem',
-//       email: 'tasneem.masri@gmail.com',
-//       imageUrl: '',
-//     )
-//   ];
-
-//   List<OneUser> get usersList {
-//     return [...users];
-//   }
-
-//   OneUser findById(int id) {
-//     return users.firstWhere((vendor) => vendor.id == id);
-//   }
-// }
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventique_company_app/models/user_model.dart';
 import 'package:flutter/foundation.dart';
@@ -38,29 +11,89 @@ class UsersProvider with ChangeNotifier {
     return _users.firstWhere((user) => user.id == id);
   }
 
-  Future<void> fetchUsersForVendor(String vendorId) async {
-    try {
-      // Fetch all chat messages where the receiverId is the current vendor
-      final chatSnapshot = await FirebaseFirestore.instance
-          .collection('chats')
-          .where('receiverId', isEqualTo: vendorId)
-          .get();
+  void fetchUsersForVendor(String vendorId) {
+    // Set up a snapshot listener for the 'chats' collection
+    FirebaseFirestore.instance.collection('chats').snapshots().listen(
+      (chatsSnapshot) async {
+        try {
+          final List<OneUser> loadedUsers = [];
+          final userSet = <String>{}; // To track unique user IDs
 
-      // Extract unique sender IDs from chat messages
-      final senderIds = chatSnapshot.docs.map((doc) => doc['senderId']).toSet();
+          // Log before processing data
+          print('Processing chats from Firestore for vendorId: $vendorId');
 
-      // Fetch user details for those sender IDs
-      final userSnapshots = await Future.wait(senderIds.map((id) =>
-          FirebaseFirestore.instance.collection('users').doc(id).get()));
+          if (chatsSnapshot.docs.isEmpty) {
+            print('No chat documents found.');
+          } else {
+            print('Fetched ${chatsSnapshot.docs.length} chat documents');
+          }
 
-      _users = userSnapshots
-          .where((doc) => doc.exists)
-          .map((doc) => OneUser.fromFirestore(doc))
-          .toList();
+          for (var chat in chatsSnapshot.docs) {
+            print('Processing chat document with ID: ${chat.id}');
 
-      notifyListeners();
-    } catch (error) {
-      print("Error fetching users: $error");
-    }
+            // Extract userId and vendorId from document ID
+            final parts = chat.id.split('_');
+            if (parts.length != 2) {
+              print('Invalid document ID format: ${chat.id}');
+              continue;
+            }
+
+            final chatUserId = parts[0];
+            final chatVendorId = parts[1];
+
+            print(
+                'Extracted chatUserId: $chatUserId, chatVendorId: $chatVendorId');
+
+            // Check if the vendorId matches
+            if (chatVendorId == vendorId) {
+              print('Vendor ID matches! Fetching messages for this chat.');
+
+              // Fetch messages for this chat document
+              final messagesSnapshot =
+                  await chat.reference.collection('messages').get();
+
+              if (messagesSnapshot.docs.isEmpty) {
+                print('No messages found in this chat.');
+              } else {
+                print('Fetched ${messagesSnapshot.docs.length} messages.');
+              }
+
+              for (var message in messagesSnapshot.docs) {
+                final userId = message['userId'];
+                final userName = message['userName'];
+                final userImage = message['userImage'];
+
+                print('Message from userId: $userId, userName: $userName');
+
+                // Only add unique users
+                if (!userSet.contains(userId)) {
+                  userSet.add(userId);
+                  loadedUsers.add(
+                    OneUser(
+                      id: int.tryParse(userId) ?? 0, // Ensure ID is an integer
+                      name: userName,
+                      imageUrl: userImage,
+                    ),
+                  );
+                }
+              }
+            } else {
+              print('Vendor ID does not match. Skipping chat.');
+            }
+          }
+
+          // Update the list of loaded users and notify listeners
+          _users = loadedUsers;
+          print('Loaded users: ${_users.length}');
+          notifyListeners();
+        } catch (error) {
+          print("Error processing users: $error");
+          throw (error);
+        }
+      },
+      onError: (error) {
+        print("Error listening to chat documents: $error");
+      },
+    );
   }
 }

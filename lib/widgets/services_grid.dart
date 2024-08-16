@@ -36,11 +36,12 @@ class _ServicesGridState extends State<ServicesGrid> {
 
     return _isLoading
         ? Padding(
-          padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.3),
-          child: Center(
+            padding:
+                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.3),
+            child: Center(
               child: CircularProgressIndicator(),
             ),
-        )
+          )
         : AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             transitionBuilder: (Widget child, Animation<double> animation) {
@@ -52,11 +53,12 @@ class _ServicesGridState extends State<ServicesGrid> {
             },
             child: (displayedServices.length > 0)
                 ? GridView.builder(
-                    key: ValueKey<int>(
-                        displayedServices.length), // Unique key for AnimatedSwitcher
+                    key: ValueKey<int>(displayedServices
+                        .length), // Unique key for AnimatedSwitcher
                     padding: const EdgeInsets.all(26),
                     itemCount: displayedServices.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 2 / 2.9,
                       crossAxisSpacing: 16,
@@ -74,27 +76,30 @@ class _ServicesGridState extends State<ServicesGrid> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                   )
-                : 
-      //           Center( // Ensure the text is centered
-      //   child: Text(
-      //     'No Services Are Available Yet',
-      //     style: TextStyle(
-      //       fontFamily: 'IrishGrover',
-      //       fontSize: 22,
-      //       color: Color.fromARGB(255, 227, 181, 193),
-      //     ),
-      //   ),
-      // ),
-      Center(
-            child: Text(
-              'No Services Are Available Yet',
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontFamily: 'IrishGrover',
-                    fontSize: 22,
-                    color: const Color.fromARGB(255, 227, 181, 193),
-                  ),
-            ),
-          )
-          );
+                :
+                //           Center( // Ensure the text is centered
+                //   child: Text(
+                //     'No Services Are Available Yet',
+                //     style: TextStyle(
+                //       fontFamily: 'IrishGrover',
+                //       fontSize: 22,
+                //       color: Color.fromARGB(255, 227, 181, 193),
+                //     ),
+                //   ),
+                // ),
+                Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          top: MediaQuery.of(context).size.height * 0.25),
+                      child: Text(
+                        'No Services Are Available Yet',
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                              fontFamily: 'IrishGrover',
+                              fontSize: 22,
+                              color: const Color.fromARGB(255, 227, 181, 193),
+                            ),
+                      ),
+                    ),
+                  ));
   }
 }

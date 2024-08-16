@@ -36,7 +36,9 @@ class AuthVendor with ChangeNotifier {
 
   Future<void> loadUserData() async {
     final userData = await StorageManager.loadUserData();
-    if (userData != null && userData['loginToken'] != null) {
+    if (userData != null &&
+        userData['loginToken'] != null &&
+        userData['loginToken'] != '') {
       _loginToken = userData['loginToken'];
       print('Loaded login token:$_loginToken');
       // _userId = userData['userId'];
@@ -180,11 +182,13 @@ class AuthVendor with ChangeNotifier {
 
   Future<void> login(String email, String password) async {
     final url = Uri.parse('$host/api/companies/login');
+    print(url);
     try {
       final response = await http.post(
         url,
         headers: {
           'Accept': 'application/json',
+          'locale': 'en',
         },
         body: {
           'email': email,
@@ -192,12 +196,13 @@ class AuthVendor with ChangeNotifier {
         },
       );
 
+      final responseData = json.decode(response.body);
       // Check for a valid response
       if (response.statusCode != 200) {
+        print(responseData);
         throw Exception('Failed to login');
       }
 
-      final responseData = json.decode(response.body);
       print(responseData);
       // Ensure responseData is not null
       if (responseData == null) {
@@ -244,7 +249,7 @@ class AuthVendor with ChangeNotifier {
         userEmail: _userData['email'],
         userImage: _userData['image'],
       );
-      await authenticateUserWithCustomToken(_firebaseToken);
+      // await authenticateUserWithCustomToken(_firebaseToken);
       notifyListeners();
     } catch (error) {
       print(error.toString());

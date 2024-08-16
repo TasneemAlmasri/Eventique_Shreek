@@ -306,7 +306,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen> {
                       isLight: isLight),
                   VendorProfileItem(
                     title: 'Phone',
-                    userInfo: vendorInfo['phone'] ?? 'N/A',
+                    userInfo: '0${vendorInfo['phone']}',
                     subtitle: '',
                     iconData: Icons.call,
                     isLight: isLight,

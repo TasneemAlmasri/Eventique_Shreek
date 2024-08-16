@@ -33,12 +33,14 @@ class _CreateCustomizedServiceState extends State<CreateCustomizedService> {
 
       if (user != null) {
         FirebaseFirestore.instance.collection('customized_services').add({
+          'serviceId': _selectedService.serviceId,
           'service': _selectedService.name,
           'description': _newDescription,
           'price': _newPrice,
           'userId': user.uid,
           'vendorId': vendorId,
           'createdAt': Timestamp.now(),
+          "messageType": "service",
         });
 
         FirebaseFirestore.instance.collection('chat').add({

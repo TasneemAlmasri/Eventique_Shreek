@@ -67,9 +67,9 @@ class _AddServiceFormState extends State<AddServiceForm> {
   void _trySubmit() {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    if (_selectedImages.length < 3) {
+    if (_selectedImages.length < 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please upload at least three images')),
+        SnackBar(content: Text('Please upload at least one image')),
       );
       return;
     }

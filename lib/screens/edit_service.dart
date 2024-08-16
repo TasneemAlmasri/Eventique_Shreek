@@ -38,9 +38,9 @@ class _EditServiceState extends State<EditService> {
   Future<List<String>> _uploadImages(List<File> selectedImages) async {
     print(widget.existingImageUrls.length);
     // Check if the total number of images is at least 3
-    if ((selectedImages.length + widget.existingImageUrls.length) < 3) {
+    if ((selectedImages.length + widget.existingImageUrls.length) < 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least three images')),
+        const SnackBar(content: Text('Please select at least one image')),
       );
       return [];
     }
@@ -254,9 +254,9 @@ class _AddServiceFormState extends State<AddServiceForm> {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
     // Check if the total number of images (selected + existing) is at least 3
-    if ((_selectedImages.length + _existingImageUrls.length) < 3) {
+    if ((_selectedImages.length + _existingImageUrls.length) < 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please upload at least three images')),
+        const SnackBar(content: Text('Please upload at least one image')),
       );
       return;
     }

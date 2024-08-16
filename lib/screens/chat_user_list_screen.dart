@@ -1,3 +1,4 @@
+import 'package:eventique_company_app/providers/auth_vendor.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '/color.dart';
@@ -16,28 +17,33 @@ class ChatUsersListScreen extends StatefulWidget {
 
 class _ChatUsersListScreenState extends State<ChatUsersListScreen> {
   bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchUsers();
-  }
+  bool _isInit = true;
 
   Future<void> _fetchUsers() async {
     setState(() {
       _isLoading = true;
     });
 
-    final vendorId =
-        FirebaseAuth.instance.currentUser?.uid; // Get current vendor ID
-    if (vendorId != null) {
-      await Provider.of<UsersProvider>(context, listen: false)
-          .fetchUsersForVendor(vendorId);
-    }
+    final vendorId = Provider.of<AuthVendor>(context)
+        .userId
+        .toString(); // Get current vendor ID
+
+    Provider.of<UsersProvider>(context, listen: false)
+        .fetchUsersForVendor(vendorId);
 
     setState(() {
       _isLoading = false;
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    if (_isInit) {
+      _fetchUsers();
+      _isInit = false;
+    }
   }
 
   @override

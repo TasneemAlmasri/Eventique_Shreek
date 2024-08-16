@@ -12,9 +12,9 @@ class OneUser {
     final data = doc.data() as Map<String, dynamic>;
     return OneUser(
       id: doc.id as int,
-      name: data['name'] ?? '',
-      email: data['email'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
+      name: data['name'],
+      email: data['email'],
+      imageUrl: data['imageUrl'],
     );
   }
 }

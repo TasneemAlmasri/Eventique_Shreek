@@ -8,14 +8,12 @@ class Messages extends StatelessWidget {
 
   Messages(this.userId);
 
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection('chat')
-          .where('userId',
-              isEqualTo: userId) // Only show messages from the specific user
+          .where('userId', isEqualTo: userId)
           .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (ctx, chatSnapshot) {

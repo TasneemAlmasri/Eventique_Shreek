@@ -20,9 +20,9 @@ class _CreateServiceState extends State<CreateService> {
   bool _isLoading = false;
 
   Future<List<String>> _uploadImages(List<File> selectedImages) async {
-    if (selectedImages.length < 3) {
+    if (selectedImages.length < 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select at least three images')),
+        SnackBar(content: Text('Please select at least one image')),
       );
       return [];
     }

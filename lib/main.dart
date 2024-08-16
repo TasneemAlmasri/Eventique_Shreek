@@ -1,3 +1,5 @@
+import 'package:eventique_company_app/screens/settings_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +31,7 @@ import '/screens/sign_up_screens/sign_up_screen2.dart';
 import '/screens/sign_up_screens/sign_up_screen3.dart';
 import '/screens/sign_up_screens/sign_up_screen4.dart';
 
-const String host = 'http://192.168.1.106:8000'; // Your backend URL
+const String host = 'http://192.168.1.107:8000';
 
 // Create a global key for the navigator
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -52,6 +54,8 @@ Future<void> main() async {
   // Set up background message handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  final authProvider = AuthVendor();
+  await authProvider.loadUserData();
   // Initialize Firebase Messaging and configure local notifications
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -77,7 +81,7 @@ Future<void> main() async {
 
   // Send FCM token to the backend
   if (token != null) {
-    await sendTokenToBackend(token);
+    await sendTokenToBackend(token, authProvider.userId);
   }
 
   // Initialize Flutter Local Notifications
@@ -124,9 +128,6 @@ Future<void> main() async {
     }
   });
 
-  final authProvider = AuthVendor();
-  await authProvider.loadUserData();
-
   runApp(
     ChangeNotifierProvider<ThemeProvider>(
       create: (context) => ThemeProvider(),
@@ -135,23 +136,22 @@ Future<void> main() async {
   );
 }
 
-Future<void> sendTokenToBackend(String token) async {
-  final url = '$host/api/updateFCM';
+Future<void> sendTokenToBackend(String token, int id) async {
+  final url = '$host/api/companies/updateFCM';
+  print(id);
   try {
     final response = await http.post(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
-        // Add other headers if needed
       },
-      body: '{"fcm_token": "$token"}',
+      body: '{"fcm_token": "$token","company_id":$id}',
     );
 
     if (response.statusCode == 200) {
       print('Token sent to backend successfully');
     } else {
-      print(
-          'Failed to send token to backend. Status code: ${response.statusCode}');
+      print('Failed to send token to backend. Status code: ${response.body}');
     }
   } catch (e) {
     print('Error sending token to backend: $e');
@@ -206,7 +206,7 @@ class MyApp extends StatelessWidget {
           themeMode: themeProvider.getThemeMode(),
           home: auth.isAuthenticated ? NavigationBarPage() : LoginScreen(),
           debugShowCheckedModeBanner: false,
-          navigatorKey: navigatorKey, // Add the navigator key
+          navigatorKey: navigatorKey,
           routes: {
             SignUpScreen1.routeName: (ctx) => SignUpScreen1(),
             SignUpScreen2.routeName: (ctx) => SignUpScreen2(),
@@ -222,6 +222,7 @@ class MyApp extends StatelessWidget {
             ChatScreen.routeName: (ctx) => ChatScreen(),
             UserProfileScreen.routeName: (ctx) => UserProfileScreen(),
             NavigationBarPage.routeName: (ctx) => NavigationBarPage(),
+            SettingsScreen.routeName: (ctx) => SettingsScreen(),
           },
         ),
       ),

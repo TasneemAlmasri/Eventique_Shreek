@@ -45,7 +45,7 @@ class VendorsScreen extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 40,
+          bottom: 100,
           right: 32,
           child: FloatingActionButton(
             onPressed: () {
