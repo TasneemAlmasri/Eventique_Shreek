@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventique_company_app/color.dart';
 import 'package:eventique_company_app/models/one_service.dart';
+import 'package:eventique_company_app/providers/auth_vendor.dart';
 import 'package:eventique_company_app/providers/services_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,38 +25,45 @@ class _CreateCustomizedServiceState extends State<CreateCustomizedService> {
   void _saveCustomizedService() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      final user = FirebaseAuth.instance.currentUser;
-      final userData = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user!.uid)
-          .get();
-      final vendorId = widget.userId;
+      final provider = Provider.of<AuthVendor>(context, listen: false);
+      final vendorData = provider.userData;
+      final vendorId = provider.userId;
+      final userId = widget.userId;
+      print('this is vendor id: $vendorId');
+      final ids = [widget.userId, vendorId]..sort(); // Sort the IDs
+      final chatId = ids.join('_'); // Generate consistent chatId
+      print('Sending message with chatId: $chatId');
+      FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .add({
+        'serviceId': _selectedService.serviceId,
+        'service': _selectedService.name,
+        'serviceImage': _selectedService.imgsUrl,
+        'description': _newDescription,
+        'price': _newPrice,
+        'vendorId': vendorId,
+        'logo': vendorData['image'],
+        'companyName': vendorData['companyName'],
+        'recieverId': userId,
+        'createdAt': Timestamp.now(),
+        "messageType": "service",
+      });
 
-      if (user != null) {
-        FirebaseFirestore.instance.collection('customized_services').add({
-          'serviceId': _selectedService.serviceId,
-          'service': _selectedService.name,
-          'description': _newDescription,
-          'price': _newPrice,
-          'userId': user.uid,
-          'vendorId': vendorId,
-          'createdAt': Timestamp.now(),
-          "messageType": "service",
-        });
+      // FirebaseFirestore.instance.collection('chat').add({
+      //   'text': 'Customized Service: ${_selectedService.name}',
+      //   'service': _selectedService.name,
+      //   'description': _newDescription,
+      //   'price': _newPrice,
+      //   'vendorId': vendorId,
+      //   'userName': vendorData['companyName'],
+      //   'userImage': vendorData['image'],
+      //   'recieverId': widget.userId,
+      //   'createdAt': Timestamp.now(),
+      //   'messageType': 'service'
+      // });
 
-        FirebaseFirestore.instance.collection('chat').add({
-          'text': 'Customized Service: ${_selectedService.name}',
-          'service': _selectedService.name,
-          'description': _newDescription,
-          'price': _newPrice,
-          'userId': user.uid,
-          'userName': userData['username'],
-          'userImage': userData['image_url'],
-          'vendorId': vendorId,
-          'createdAt': Timestamp.now(),
-          'type': 'service'
-        });
-      }
       Navigator.of(context).pop();
     }
   }

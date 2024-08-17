@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eventique_company_app/providers/auth_vendor.dart';
 import 'package:eventique_company_app/widgets/chat/create_customized_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '/color.dart';
 
 class NewMessage extends StatefulWidget {
@@ -19,21 +21,32 @@ class _NewMessageState extends State<NewMessage> {
 
   void _sendMessage() async {
     FocusScope.of(context).unfocus();
-    final vendor = FirebaseAuth.instance.currentUser;
-    final vendorData = await FirebaseFirestore.instance
-        .collection('vendors')
-        .doc(vendor!.uid)
-        .get();
-    FirebaseFirestore.instance.collection('chat').add(
+    final provider = Provider.of<AuthVendor>(context, listen: false);
+    final userData = provider.userData;
+    final vendorId = provider.userId;
+    print('this is vendor id: $vendorId');
+    final ids = [widget.userId, vendorId]..sort(); // Sort the IDs
+    final chatId = ids.join('_'); // Generate consistent chatId
+    print('Sending message with chatId: $chatId');
+    print(
+        'text: $_enteredMessage \n createdAt: ${Timestamp.now()},userId: $vendorId,recieverId:${widget.userId},userName: ${userData['userName']},userImage: ${userData['userImage']}, messageType: normal');
+    FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .add(
       {
         'text': _enteredMessage,
         'createdAt': Timestamp.now(),
-        'vendorId': vendor.uid,
-        'vendorName': vendorData['username'],
-        'vendorImage': vendorData['image_url'],
-        'userId': widget.userId, // Add vendorId to message
+        'userId': vendorId,
+        'recieverId': widget.userId,
+        'userName': userData['companyName'],
+        'userImage': userData['image'],
+        'messageType': 'normal',
       },
     );
+    final snap = await FirebaseFirestore.instance.collection('chats').get();
+    print(snap.docs.length);
     _controller.clear();
   }
 

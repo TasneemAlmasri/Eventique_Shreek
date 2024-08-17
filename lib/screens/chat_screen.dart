@@ -22,10 +22,10 @@ class _ChatScreenState extends State<ChatScreen> {
       // setState(() {
       //   _loadingPackages = true;
       // });
-      String firebaseToken =
-          Provider.of<AuthVendor>(context, listen: false).fireToken;
-      await Provider.of<AuthVendor>(context, listen: false)
-          .authenticateUserWithCustomToken(firebaseToken);
+      // String firebaseToken =
+      //     Provider.of<AuthVendor>(context, listen: false).fireToken;
+      // await Provider.of<AuthVendor>(context, listen: false)
+      //     .authenticateUserWithCustomToken(firebaseToken);
       // setState(() {
       //   _loadingPackages = false;
       // });
