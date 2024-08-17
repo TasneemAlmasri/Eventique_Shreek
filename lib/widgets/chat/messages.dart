@@ -87,7 +87,7 @@ class Messages extends StatelessWidget {
             } else if (chatDocs[i]['messageType'] == 'service') {
               // Handle 'service' type messages
               return CustomizeTile(
-                  serviceImage: "chatDocs[i]['serviceImage']",
+                  serviceImage: chatDocs[i]['serviceImage'],
                   serviceId: (chatDocs[i]['serviceId']).toString(),
                   serviceName: chatDocs[i]['service'],
                   serviceDes: chatDocs[i]['description'],
@@ -96,7 +96,7 @@ class Messages extends StatelessWidget {
                   userImage: chatDocs[i]['logo'],
                   isMe: chatDocs[i].data().containsKey('vendorId') &&
                       chatDocs[i]['vendorId'] ==
-                          userId, // Check if sender is user
+                          vendorId, // Check if sender is user
                   key: ValueKey(chatDocs[i].id));
               // return ListTile(
               //   title: Text('Service: ${chatDocs[i]['service']}'),

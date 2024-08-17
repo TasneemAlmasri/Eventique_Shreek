@@ -10,10 +10,10 @@ class StatisticsProvider with ChangeNotifier {
   StatisticsProvider(this.token, this.id);
   int _amount = 100000000;
   var _statistics = {
-    'customers': '1507',
-    'services': '105',
-    'rating': '4.5',
-    'revenue': '1040'
+    'customers': '',
+    'services': '',
+    'rating': '',
+    'revenue': ''
   };
 
   Map<String, String> get statistics {

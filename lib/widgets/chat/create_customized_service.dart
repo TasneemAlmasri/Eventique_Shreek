@@ -40,7 +40,7 @@ class _CreateCustomizedServiceState extends State<CreateCustomizedService> {
           .add({
         'serviceId': _selectedService.serviceId,
         'service': _selectedService.name,
-        'serviceImage': _selectedService.imgsUrl,
+        'serviceImage': _selectedService.imgsUrl![0],
         'description': _newDescription,
         'price': _newPrice,
         'vendorId': vendorId,

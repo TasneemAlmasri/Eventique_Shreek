@@ -31,7 +31,7 @@ import '/screens/sign_up_screens/sign_up_screen2.dart';
 import '/screens/sign_up_screens/sign_up_screen3.dart';
 import '/screens/sign_up_screens/sign_up_screen4.dart';
 
-const String host = 'http://192.168.1.107:8000';
+const String host = 'http://192.168.43.184:8000';
 
 // Create a global key for the navigator
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -172,8 +172,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(
           value: authProvider,
         ),
-        ChangeNotifierProvider.value(
-          value: ServiceProvider(authProvider.token, authProvider.userId),
+        ChangeNotifierProxyProvider<AuthVendor, ServiceProvider>(
+          create: (_) =>
+              ServiceProvider(authProvider.token, authProvider.userId),
+          update: (context, auth, previous) =>
+              ServiceProvider(auth.token, auth.userId),
+          // value: ServiceProvider(authProvider.token, authProvider.userId),
         ),
         ChangeNotifierProvider.value(
           value: EventProvider(),
@@ -181,19 +185,27 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(
           value: UsersProvider(authProvider.token),
         ),
-        ChangeNotifierProvider.value(
-          value: Orders(authProvider.token, authProvider.userId),
+        ChangeNotifierProxyProvider<AuthVendor, Orders>(
+          create: (_) => Orders(authProvider.token, authProvider.userId),
+          update: (context, auth, previous) => Orders(auth.token, auth.userId),
         ),
-        ChangeNotifierProvider.value(
-          value: AllServices(authProvider.userId, authProvider.token),
+        ChangeNotifierProxyProvider<AuthVendor, AllServices>(
+          create: (_) => AllServices(authProvider.userId, authProvider.token),
+          update: (context, auth, previous) =>
+              AllServices(auth.userId, auth.token),
         ),
-        ChangeNotifierProvider.value(
-          value: Reviews(authProvider.token),
+        ChangeNotifierProxyProvider<AuthVendor, Reviews>(
+          create: (_) => Reviews(authProvider.token),
+          update: (context, auth, previous) => Reviews(auth.token),
         ),
-        ChangeNotifierProvider.value(
-          value: StatisticsProvider(
+        ChangeNotifierProxyProvider<AuthVendor, StatisticsProvider>(
+          create: (_) => StatisticsProvider(
             authProvider.token,
             authProvider.userId,
+          ),
+          update: (context, auth, previous) => StatisticsProvider(
+            auth.token,
+            auth.userId,
           ),
         ),
         ChangeNotifierProvider.value(
