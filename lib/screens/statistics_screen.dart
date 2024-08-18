@@ -32,6 +32,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   ];
   List years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
   bool _isLoading = false;
+  bool _isInit = true;
   bool _todaySelection = true;
   bool _monthSelection = false;
   bool _yearSelection = false;
@@ -43,7 +44,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
       String dateToFetch;
       if (_todaySelection) {
-        // Format the date as 'YYYY-MM-DD'
         dateToFetch =
             "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
         print(dateToFetch);
@@ -58,13 +58,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         await Provider.of<StatisticsProvider>(context, listen: false)
             .getStatistics('MonthlyStatistics', dateToFetch);
       } else if (_yearSelection && selectedYear != null) {
-        // Format the date as 'YYYY'
         dateToFetch = "$selectedYear";
         print(dateToFetch);
         await Provider.of<StatisticsProvider>(context, listen: false)
             .getStatistics('YearlyStatistics', dateToFetch);
       } else {
-        // Default to current date if nothing is selected, formatted as 'YYYY-MM-DD'
         DateTime now = DateTime.now();
         dateToFetch =
             "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
@@ -101,6 +99,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _yearSelection = true;
     });
     fetchStatistics();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    if (_isInit) {
+      fetchStatistics();
+      _isInit = false;
+    }
   }
 
   @override
